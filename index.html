@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../assets/three98.js"></script>
+    <script src="../js/libs/dat.gui.min.js"></script>
+    <script src="../js/controls/OrbitControls.js"></script>
+    <script src="../assets/jquery-3.4.1.min.js"></script>
+    <script src="./libs/tween.min.js"></script>
+    <script src="./js/threeChassis.Initialize.js"></script>
+    <script src="./js/threeChassis.config.js"></script>
+    <script src="./js/threeChassis.Utils.js"></script>
+    <script src="./js/threeChassis.Config.js"></script>
+    <script src="./js/threeChassis.Layer.js"></script>
+    <script src="./js/threeChassis.Collects.js"></script>
+    <script src="./utils/gui.js"></script>
+    <title>预研</title>
+</head>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    #app {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+    }
+</style>
+
+<body>
+    <div class="" id="app"></div>
+</body>
+<script>
+    var ctx = $("#app");
+    var chassis = new chassisInitialize(Chassis_Layer);
+    chassis.init(ctx, {})
+    chassis.render()
+    window.addEventListener("resize", chassis.onContResize)
+</script>
+
+</html>
