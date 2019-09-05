@@ -20,7 +20,7 @@ var Basic_Config = {
         enableDamping: true,
         dampingFactor: 0.05,
         panSpeed: .1,
-        zoomSpeed: .1,
+        zoomSpeed: .8,
         rotateSpeed: .05,
         distance: [50, 1000],
         polarAngle: [-Math.PI * .5, 3 * Math.PI * .5],
@@ -31,20 +31,24 @@ var Chassis_Config = {
     skinOne: {
         insideColor: "", //内圈颜色
         outerColor: "", //外圈颜色
-        insideImg: "", //内圈图片
+        insideImg: "./image/center.png", //内圈图片
+        insideX: 0, //内圈图片坐标相对位置
+        insideY: 0, //内圈图片坐标相对位置
+        insideZ: 0, //内圈图片坐标相对位置
         cube: "1", //立方体样式
         cubeStyle: "", //立方体皮肤 内置
         cubeSize: 15, //立方体大小
         cubeNumber: 20, //立方体数量
         aureColor: "", //光环颜色
         aureeffectColor: "", //光环特效颜色
-        lineStyle: "", //线条样式  实线 虚线
-        lineColor: "", //线条颜色
+        lineStyle:"dashed", //线条样式  实线 虚线
+        lineColor: "rgba(255,255,50,0.4)", //线条颜色
         lightEffect: "", //光效样式
+        lightDotColor:"",
         lightColor: "", //光效颜色
         lightPth: "", //光效方向
         lightSpeed: "", //光效速度
-        chassisRotate: "", //旋转方向
+        chassisRotate: "", //旋转方向 旋转方向 1 正 2反 0 停
         chassisRotateSpeed: "", //旋转速度
         labelSize: 14, //标签大小
         labelColor: "#fff", //标签颜色

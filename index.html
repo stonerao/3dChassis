@@ -43,7 +43,9 @@
     var chassis = new chassisInitialize(Chassis_Layer);
     chassis.init(ctx, {})
     chassis.render()
-    window.addEventListener("resize", chassis.onContResize)
+    window.addEventListener("resize", chassis.onContResize);
+    //GUI
+    initGui(chassis)
 </script>
 
 </html>

@@ -143,14 +143,10 @@
          */
         function initiateChassis() {
             thm.layoutObject = new THREE.Group();
-            thm.scene.add(thm.layoutObject);
-
+            thm.scene.add(thm.layoutObject); 
             //初始化转盘
             thm.C_Layer = new Chassis_Layer(thm);
-            thm.C_Layer.init({
-                insideImg: "./image/center.png",
-                lineStyle: "dashed"
-            })
+            thm.C_Layer.init(_Config.Chassis_Config.skinOne)
         }
         /**
          * [animation 动态修改]
