@@ -9,41 +9,26 @@
 <body>
 
     <!-- 添加canvas标签，并加上红色边框以便于在页面上查看 -->
-    <canvas id="myCanvas" width="256px" height="256px" style="border: 1px solid red;">
+    <canvas id="myCanvas" width="556px" height="556px" style="border: 1px solid red;">
         您的浏览器不支持canvas标签。
     </canvas>
 
     <script type="text/javascript">
         //获取Canvas对象(画布)
         var canvas = document.getElementById("myCanvas");
-        //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
-        if (canvas.getContext) {
-            //获取对应的CanvasRenderingContext2D对象(画笔)
-            var ctx = canvas.getContext("2d");
-            addCircle(256, 256)
-            addCirclecCenter(100, 256)
-            function addCircle(radius, width) {
-                ctx.beginPath()
-                //绘制一个以坐标点(100,100)为圆心、半径为50px的圆形
-                ctx.arc(width / 2, width / 2, radius / 2, 0, Math.PI * 2, false);
-                //创建一个表示放射性颜色渐变的CanvasGradient对象
-                //该对象的作用域是以(100,100)为圆心、半径为10px的内圆和以(100,100)为圆心、半径为50px的外圆之间的环状区域
-                var canvasGradient = ctx.createRadialGradient(width / 2, width / 2, radius / 2, width / 2, width / 2, 100);
-                //在offset为0的位置(即内圆的圆圈处)添加一个蓝色的渐变
-                canvasGradient.addColorStop(0, "rgba(55,88,255,0.5)");
-                //在offset为0的位置(即外圆的圆圈处)添加一个红色的渐变
-                canvasGradient.addColorStop(0.1, "rgba(55,88,255,0)");
-                canvasGradient.addColorStop(1, "rgba(55,88,255,0)");
-                //将fillStyle的属性值设为该CanvasGradient对象
-                ctx.fillStyle = canvasGradient;
-                ctx.fill();
-            }
-            function addCirclecCenter(radius, width) {
-                ctx.beginPath()
-                ctx.arc(width / 2, width / 2, radius / 2, 0, Math.PI * 2, false);
-                ctx.fillStyle = "rgba(55,88,255,0.5)";
-                ctx.fill();
-            }
+        var ctx = canvas.getContext("2d");
+        var center = 250;//center
+        var radius = 200;
+        var len = 20;
+        for (var i = 0; i < len; i++) {
+             addArc((i/30),radius+i);
+             addArc((i/30),radius-i+len*1.9);
+        }
+        function addArc(opacity,r){
+            ctx.beginPath()
+            ctx.arc(center, center, r , 0, Math.PI * 2, false);
+            ctx.strokeStyle = `rgba(255,0,255,${opacity-0.1})`;
+            ctx.stroke(); 
         }
     </script>
 </body>
