@@ -145,8 +145,12 @@
             thm.layoutObject = new THREE.Group();
             thm.scene.add(thm.layoutObject); 
             //初始化转盘
-            thm.C_Layer = new Chassis_Layer(thm);
-            thm.C_Layer.init(_Config.Chassis_Config.skinOne)
+            /* thm.C_Layer = new Chassis_Layer(thm);
+            thm.C_Layer.init(_Config.Chassis_Config.skinOne) */
+
+            thm.init_cube = new initCube(thm);
+            let cube = thm.init_cube.init();
+            thm.layoutObject.add(cube);
         }
         /**
          * [animation 动态修改]
