@@ -143,14 +143,14 @@
          */
         function initiateChassis() {
             thm.layoutObject = new THREE.Group();
-            thm.scene.add(thm.layoutObject); 
+            thm.scene.add(thm.layoutObject);
             //初始化转盘
-            /* thm.C_Layer = new Chassis_Layer(thm);
-            thm.C_Layer.init(_Config.Chassis_Config.skinOne) */
+            thm.C_Layer = new Chassis_Layer(thm);
+            thm.C_Layer.init(_Config.Chassis_Config.skinOne)
 
-            thm.init_cube = new initCube(thm);
-            let cube = thm.init_cube.init();
-            thm.layoutObject.add(cube);
+            // thm.init_cube = new initCube(thm);
+            // let cube = thm.init_cube.init();
+            // thm.layoutObject.add(cube);
         }
         /**
          * [animation 动态修改]
@@ -158,7 +158,7 @@
          * @DateTime 2019-8-27 09:20:22
          */
         function animation(delte) {
-            if(thm.C_Layer){
+            if (thm.C_Layer) {
                 thm.C_Layer.animation(delte)
             }
         }
