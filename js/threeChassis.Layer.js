@@ -59,7 +59,7 @@ var Chassis_Layer = function(layout) {
         //圈 内/外 
         //外圈
         let ringOuter_Geo = new THREE.PlaneBufferGeometry(chassisRadius * 2 - 50, chassisRadius * 2 - 50, 2);
-        let ringOuter_Textur = createOuterRing(chassisRadius * 3, chassisRadius * 3);
+        let ringOuter_Textur = createOuterRing(chassisRadius * 3, 0.1);
         let ringOuter_Mat = new THREE.MeshBasicMaterial({
             color: 0x5588aa,
             side: THREE.DoubleSide,
@@ -90,27 +90,33 @@ var Chassis_Layer = function(layout) {
         const cubeNumber = df_Config.cubeNumber; //根数
         const cubeSize = df_Config.cubeSize; //大小
         const cubeStyle = df_Config.cubeStyle; //样式 quit
+        const cubeStyleAssets = df_Config.cubeStyleAssets; //样式 quit
         const cube = df_Config.cube; //图 quit
         let circleArr = drawCircle([center.x, center.z], chassisRadius, 1, cubeNumber);
-        //立方体贴图
-        thm.cubeMaterial = createCubeMaterial("./image/texture-atlas.jpg")
+        //立方体贴图 
+        //添加中心点到四周立方体的线段
         for (let i = 0; i < circleArr.length; i++) {
-            //生成cube
             let elem = circleArr[i];
-            let geometry = addCube(cubeSize);
-            let cubeMesh = new THREE.Mesh(geometry, thm.cubeMaterial);
-            thm.childCubeObject.add(cubeMesh);
             const vec3 = new THREE.Vector3(elem.pre[0], 0, elem.pre[1]);
-            cubeMesh.position.set(vec3.x, vec3.y, vec3.z);
-            cubeMesh.lookAt(new THREE.Vector3(0, 0, 0));
-            cubeMesh.rotation.z = Math.PI / 4;
-            cubeMesh.rotation.y = Math.PI / 4;
-            //添加线段
             thm.lineArrPosition.push({
                 src: center,
                 dst: vec3
             })
         }
+
+        //根据样式不同 创建不同的外圈模型
+        thm.cubeMaterial;
+        switch (cubeStyle) {
+            //立方体
+            case 1:
+                createOuterCube(circleArr, cubeSize, cubeStyleAssets)
+                break;
+            case 2:
+                createOuterCone(circleArr, cubeSize, cubeStyleAssets)
+                break;
+        }
+
+
         // 添加光环 
         let aura_Geo = new THREE.PlaneBufferGeometry(120, 120);
         let aura_Textur = createAura(150, 3);
@@ -194,8 +200,7 @@ var Chassis_Layer = function(layout) {
         mouse.y = _mouse.y;
         df_Raycaster.setFromCamera(mouse, layout.camera);
         //点击cube
-        thm.clickCube(df_Raycaster)
-
+        thm.clickCube(df_Raycaster);
     }
     /**
      * [clickCube 点击四周立方体事件]
@@ -325,6 +330,181 @@ var Chassis_Layer = function(layout) {
 
     }
     /**
+     * [createOuterCone 添加锥子几何体]
+     * @Author   RAOYN
+     * @DateTime 2019-09-09
+     * @param    {Array}    positions [坐标]
+     * @param    {Number}   cubeSize  [大小]
+     * @param    {[type]}   map       [贴图]
+     * @return   {[type]}             [description]
+     */
+    function createOuterCone(positions = [], cubeSize, map) {
+        let material = new THREE.MeshNormalMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 1,
+            depthTests: true,
+        });
+        let pointMap = new THREE.TextureLoader().load(_Assets.point);
+        //圆圈材质
+        let arueMaterial = new THREE.LineBasicMaterial({
+            color: 0xffffff,
+            opacity: 0.2,
+            transparent: true
+        });
+        let PointShader = {
+            vertexshader: `
+                uniform vec3 vPosition;
+                void main(){ 
+                    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                    gl_Position = projectionMatrix * mvPosition; 
+                }
+            `,
+            fragmentshader: `
+
+                void main(){
+
+                }
+            `
+        }
+        let pM = new THREE.PointsMaterial({
+            size: 5,
+            map: pointMap,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            transparent: true
+        });
+        let poins = [];
+        let cone = [];
+        for (let i = 0; i < positions.length; i++) {
+            //生成cube
+            let g = new THREE.Group();
+            thm.childCubeObject.add(g);
+            let elem = positions[i];
+            let geometry = new THREE.ConeBufferGeometry(cubeSize / 1.7, cubeSize, 4);
+            let cubeMesh = new THREE.Mesh(geometry, material);
+            cubeMesh.name = "point";
+            g.add(cubeMesh)
+            cone.push(cubeMesh)
+            const vec3 = new THREE.Vector3(elem.pre[0], 0, elem.pre[1]);
+            g.position.set(vec3.x, vec3.y + cubeSize / 2, vec3.z);
+            g.lookAt(new THREE.Vector3(0, 0, 0));
+            g.rotation.z += Math.PI;
+            //plane
+            let planeGeo = new THREE.PlaneBufferGeometry(15, 15, 2);
+            let planeTextur = createOuterRing(128, 0.4);
+            let planeMater = new THREE.MeshBasicMaterial({
+                color: 0x5588aa,
+                side: THREE.DoubleSide,
+                map: planeTextur,
+                transparent: true,
+                depthTest: false,
+            });
+            let plane = new THREE.Mesh(planeGeo, planeMater);
+            plane.rotation.x -= Math.PI / 2;
+            plane.position.y = cubeSize / 2 + 1;
+            g.add(plane)
+            //圆圈 
+            for (let j = 0; j < 3; j++) {
+                let arue = addArueMesh(cubeSize / (2.5 - 0.5 * j), arueMaterial);
+                let y = (cubeSize / 4 * (1 - j * 1)) || 0;
+                arue.mesh.position.y = (cubeSize / 4 * (1 - j * 1)) || 0;
+                cubeMesh.add(arue.mesh);
+                let positions = arue.points.map(elem => {
+                    return [elem.x, y, elem.y]
+                })
+                let point = addPoint(arue.points[0], arue.mesh.position.y);
+                point.userData = {
+                    type: 0,
+                    index: parseInt(Math.random() * positions.length),
+                    position: positions
+                }
+                cubeMesh.add(point);
+                poins.push(point);
+            }
+        }
+        setInterval(() => {
+            let i = 0;
+            cone.forEach(function(elem) {
+                elem.rotation.y += 0.05;
+            })
+            poins.forEach((elem, index) => {
+                if (elem.userData.index >= elem.userData.position.length) {
+                    elem.userData.index = 0;
+                }
+                let p = elem.userData.position[elem.userData.index];
+                elem.position.set(...p)
+                elem.userData.index++;
+            })
+        }, 120)
+
+        function addPoint(position, y) {
+            var geometry = new THREE.BufferGeometry();
+            geometry.addAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+            var particles = new THREE.Points(geometry, pM);
+            return particles
+        }
+        poins.forEach(function(elem) {
+
+        })
+    }
+    /**
+     * [addArueMesh addArueMesh]
+     * @Author   RAOYN
+     * @DateTime 2019-09-09
+     * @param    {Number}   radius   [创建一个圆的几何] 
+     * @param    {[type]}   material [材质]
+     * @return   {[Mesh]}            [Mesh]
+     */
+    function addArueMesh(radius, material) {
+        var curve = new THREE.EllipseCurve(
+            0, 0, // ax, aY
+            radius, radius, // xRadius, yRadius
+            0, 2 * Math.PI, // aStartAngle, aEndAngle
+            false, // aClockwise
+            0 // aRotation
+        );
+        var points = curve.getPoints(64);
+        var geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+
+        // Create the final object to add to the scene
+        var ellipse = new THREE.Line(geometry, material);
+        ellipse.rotation.x += -Math.PI / 2;
+        return {
+            mesh: ellipse,
+            points: points
+        }
+    }
+    /**
+     * [createOuterCube 创建外圈立方体]
+     * @Author   RAOYN
+     * @DateTime 2019-09-09
+     * @param    {Array}    positions [坐标]
+     * @param    {Number}   cubeSize  [大小]
+     * @param    {[type]}   map       [贴图]
+     * @return   {Group}              [THREE Group]
+     */
+    function createOuterCube(positions = [], cubeSize, map) {
+        let textur = new THREE.TextureLoader().load(map);
+        let material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            map: textur
+        });
+        for (let i = 0; i < positions.length; i++) {
+            //生成cube
+            let elem = positions[i];
+            let geometry = addCube(cubeSize);
+            let cubeMesh = new THREE.Mesh(geometry, material);
+            thm.childCubeObject.add(cubeMesh);
+            const vec3 = new THREE.Vector3(elem.pre[0], 0, elem.pre[1]);
+            cubeMesh.position.set(vec3.x, vec3.y, vec3.z);
+            cubeMesh.lookAt(new THREE.Vector3(0, 0, 0));
+            cubeMesh.rotation.z = Math.PI / 4;
+            cubeMesh.rotation.y = Math.PI / 4;
+        }
+    }
+    /**
      * [createInsideImg 创建中间的sprit图层]
      * @Author   RAOYN
      * @DateTime 2019-09-05
@@ -416,6 +596,7 @@ var Chassis_Layer = function(layout) {
         });
         return material
     }
+
     /**
      * [addCube 添加立方体 并且设置UV位置]
      * @Author   RAOYN
@@ -559,7 +740,7 @@ var Chassis_Layer = function(layout) {
      * @param    {[number]}   len [长度]
      * @return   {[texture]}       [纹理]
      */
-    function createOuterRing(len) {
+    function createOuterRing(len, bi = 0.1) {
         let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
         len = getPowNumber(len);
         canvas.width = len;
@@ -569,7 +750,7 @@ var Chassis_Layer = function(layout) {
         ctx.arc(len / 2, len / 2, len / 2, 0, Math.PI * 2, false);
         let canvasGradient = ctx.createRadialGradient(len / 2, len / 2, len / 2, len / 2, len / 2, len / 4);
         canvasGradient.addColorStop(0, "rgba(255,255,255,1)");
-        canvasGradient.addColorStop(0.1, "rgba(255,255,255,0)");
+        canvasGradient.addColorStop(bi, "rgba(255,255,255,0)");
         canvasGradient.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = canvasGradient;
         ctx.fill();

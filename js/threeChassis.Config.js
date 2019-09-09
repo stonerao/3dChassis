@@ -36,7 +36,8 @@ var Chassis_Config = {
         insideY: 0, //内圈图片坐标相对位置
         insideZ: 0, //内圈图片坐标相对位置
         cube: "1", //立方体样式
-        cubeStyle: "", //立方体皮肤 内置
+        cubeStyle: 2, //立方体皮肤 内置 1 立方体
+        cubeStyleAssets:"./image/texture-atlas.jpg",
         cubeSize: 15, //立方体大小
         cubeNumber: 20, //立方体数量
         aureColor: "", //光环颜色
