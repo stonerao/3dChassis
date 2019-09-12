@@ -9,7 +9,7 @@
 <body>
 
     <!-- 添加canvas标签，并加上红色边框以便于在页面上查看 -->
-    <canvas id="myCanvas" width="556px" height="556px" style="border: 1px solid red;">
+    <canvas id="myCanvas" width="512px" height="512px" style="border: 1px solid red;">
         您的浏览器不支持canvas标签。
     </canvas>
 
@@ -17,61 +17,25 @@
         //获取Canvas对象(画布)
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
-
-        strokeRoundRect(ctx, 200, 10, 100, 101, 10,2, "rgba(255,5,5,1)");
-        fillRoundRect(ctx, 200, 11, 100, 100, 10, 'rgba(0,0,0,0.5)');
-        function strokeRoundRect(cxt, x, y, width, height, radius, /*optional*/ lineWidth, /*optional*/ strokeColor) {
-            //圆的直径必然要小于矩形的宽高          
-            if (2 * radius > width || 2 * radius > height) { return false; }
-
-            cxt.save();
-            cxt.translate(x, y);
-            //绘制圆角矩形的各个边  
-            drawRoundRectPath(cxt, width, height, radius);
-            cxt.lineWidth = lineWidth || 2; //若是给定了值就用给定的值否则给予默认值2  
-            cxt.strokeStyle = strokeColor;
-            cxt.stroke();
-            cxt.restore();
-        }
-        function fillRoundRect(cxt, x, y, width, height, radius, /*optional*/ fillColor) {
-            //圆的直径必然要小于矩形的宽高          
-            if (2 * radius > width || 2 * radius > height) { return false; }
-
-            cxt.save();
-            cxt.translate(x, y);
-            //绘制圆角矩形的各个边  
-            drawRoundRectPath(cxt, width, height, radius);
-            cxt.fillStyle = fillColor || "#000"; //若是给定了值就用给定的值否则给予默认值  
-            cxt.fill();
-            cxt.restore();
-        }
-        function drawRoundRectPath(cxt, width, height, radius) {
-            cxt.beginPath(0);
-            //从右下角顺时针绘制，弧度从0到1/2PI  
-            cxt.arc(width - radius, height - radius, radius, 0, Math.PI / 2);
-
-            //矩形下边线  
-            cxt.lineTo(radius, height);
-
-            //左下角圆弧，弧度从1/2PI到PI  
-            cxt.arc(radius, height - radius, radius, Math.PI / 2, Math.PI);
-
-            //矩形左边线  
-            cxt.lineTo(0, radius);
-
-            //左上角圆弧，弧度从PI到3/2PI  
-            cxt.arc(radius, radius, radius, Math.PI, Math.PI * 3 / 2);
-
-            //上边线  
-            cxt.lineTo(width - radius, 0);
-
-            //右上角圆弧  
-            cxt.arc(width - radius, radius, radius, Math.PI * 3 / 2, Math.PI * 2);
-
-            //右边线  
-            cxt.lineTo(width, height - radius);
-            cxt.closePath();
-        }
+        let width =100;  
+        let lw = 5;
+       ctx.beginPath();
+              
+            //绘制扇形
+            ctx.arc(width+lw/2,width+lw/2,width,0,2*Math.PI);
+            ctx.strokeStyle="rgba(12,59,147,0.6)";
+            ctx.lineWidth=2;
+            ctx.stroke();
+            var grd = ctx.createRadialGradient(width , width , 2, width , width , width);
+                grd.addColorStop(1, "rgba(12,59,147,0.4)");
+                grd.addColorStop(0.99, "rgba(12,59,147,0.3)");
+                grd.addColorStop(0, "rgba(12,59,147,0)");
+            //填充扇形
+            ctx.fillStyle = grd;
+            ctx.fill()
+            // ctx.fillRect(0,0,width*2,width*2);
+            //当前扇形结束绘制角度，即下一个扇形开始绘制角度
+     
     </script>
 </body>
 

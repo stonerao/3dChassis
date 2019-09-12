@@ -10,7 +10,7 @@ var Basic_Config = {
         fov: 45,
         near: 1,
         far: 20000,
-        position: [164, 386, 428]
+        position: [164, 386, 388]
     },
     controls: {
         enableZoom: true,
@@ -33,13 +33,13 @@ var Chassis_Config = {
         outerColor: "", //外圈颜色
         insideImg: "./image/center.png", //内圈图片
         insideX: 0, //内圈图片坐标相对位置
-        insideY: 0, //内圈图片坐标相对位置
+        insideY: 30, //内圈图片坐标相对位置
         insideZ: 0, //内圈图片坐标相对位置
         cube: "1", //立方体样式
-        cubeStyle: 2, //立方体皮肤 内置 1 立方体
+        cubeStyle: 1, //立方体皮肤 内置 1 立方体
         cubeStyleAssets:"./image/texture-atlas.jpg",
-        cubeSize: 15, //立方体大小
-        cubeNumber: 20, //立方体数量
+        cubeSize: 25, //立方体大小
+        cubeNumber: 22, //立方体数量
         aureColor: "", //光环颜色
         aureeffectColor: "", //光环特效颜色
         lineStyle:"dashed", //线条样式  实线 虚线
@@ -57,6 +57,12 @@ var Chassis_Config = {
         labelBold: "#fff", //标签粗细
         labelBorderBold: "#fff", //边框粗细
         labelMax: 10, //标签最大显示数量 
+        labelOffsetX:0,//标签相对X位移
+        labelOffsetY:0,//标签相对Y位移
+        labelOffsetZ:0,//标签相对Z位移
+    },
+    skinTwo:{
+        
     }
 };
 var _Config = {};

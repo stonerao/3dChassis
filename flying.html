@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../assets/three98.js"></script>
+    <script src="./libs/tween.min.js"></script>
+    <script src="../js/libs/dat.gui.min.js"></script>
+    <script src="./utils/flying.js"></script>
+    <script src="../js/controls/OrbitControls.js"></script>
+    <script src="./utils/index.js"></script>
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            overflow: hidden;
+
+        }
+
+        #app {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="" id="app"></div>
+    <script>
+
+        let basic = new init({
+            id: "#app",
+            load(option) {
+                var items = [];
+                const random = ()=> Math.random()<0.5? Math.random() * 1000: Math.random() * -1000;
+                for (let i = 0; i < 100; i++) {
+                    items.push({
+                        src:[random(), random(), random()],
+                        dst:[random(), random(), random()]
+                    })
+                }
+                flying(option, items)
+            }
+        })
+    </script>
+</body>
+
+</html>

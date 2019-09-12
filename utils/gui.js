@@ -1,33 +1,37 @@
 var initGui = function(chassis) {
     let C_Layer = chassis.C_Layer;
-    var _df = {
+    var _df ={
         insideColor: "", //内圈颜色
         outerColor: "", //外圈颜色
-        insideImg: "样式一", //内圈图片
+        insideImg: "./image/center.png", //内圈图片
         insideX: 0, //内圈图片坐标相对位置
-        insideY: 0, //内圈图片坐标相对位置
+        insideY: 30, //内圈图片坐标相对位置
         insideZ: 0, //内圈图片坐标相对位置
-        cube: "", //立方体样式
-        cubeStyle: "", //立方体皮肤 内置
-        cubeSize: 10, //立方体大小
-        cubeNumber: 20, //立方体数量
+        cube: "1", //立方体样式
+        cubeStyle: 1, //立方体皮肤 内置 1 立方体
+        cubeStyleAssets:"./image/texture-atlas.jpg",
+        cubeSize: 25, //立方体大小
+        cubeNumber: 22, //立方体数量
         aureColor: "", //光环颜色
         aureeffectColor: "", //光环特效颜色
-        lineStyle: "", //线条样式  实线 虚线
-        lineColor: "rgba(255,255,200,0.5)", //线条颜色
+        lineStyle:"dashed", //线条样式  实线 虚线
+        lineColor: "rgba(255,255,50,0.4)", //线条颜色
         lightEffect: "", //光效样式
-        lightColor: "rgba(255,255,200,1)", //光效颜色
-        lightDotColor: "rgba(255,255,200,1)", //光环光效颜色
+        lightDotColor:"#fff",
+        lightColor: "#fff", //光效颜色
         lightPth: "", //光效方向
         lightSpeed: "", //光效速度
-        chassisRotate: "", //旋转方向 1 正 2反 0 停
-        chassisRotateSpeed: 1, //旋转速度
+        chassisRotate: "", //旋转方向 旋转方向 1 正 2反 0 停
+        chassisRotateSpeed: "", //旋转速度
         labelSize: 14, //标签大小
         labelColor: "#fff", //标签颜色
         labelStyle: "#fff", //标签样式
         labelBold: "#fff", //标签粗细
         labelBorderBold: "#fff", //边框粗细
         labelMax: 10, //标签最大显示数量 
+        labelOffsetX:0,//标签相对X位移
+        labelOffsetY:0,//标签相对Y位移
+        labelOffsetZ:0,//标签相对Z位移
     }
     let _basic = {
         style: "样式一",
@@ -134,5 +138,5 @@ var initGui = function(chassis) {
             lineColor: elem
         })
     })
-    var outerGui = gui.addFolder("外圈");
+    // var outerGui = gui.addFolder("外圈");
 }

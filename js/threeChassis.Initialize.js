@@ -120,7 +120,7 @@
             // renderer
             thm.renderer = new THREE.WebGLRenderer({
                 antialias: true,
-                alpha: true
+                alpha: true,
             });
             // thm.renderer.shadowMap.enabled = Basic_Config.controls.shadow;
             thm.renderer.setClearColor(backgroundConfig.color, backgroundConfig.opacity);
