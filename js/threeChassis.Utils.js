@@ -68,4 +68,36 @@ var _Utils = {
 		}
 		return _arr;
 	},
+	setParms(_df, _cur) {
+		let obj = _df;
+		for (let key in obj) {
+			if (_cur.hasOwnProperty(key)) {
+				obj[key] = _cur[key]
+			}
+		}
+		return obj
+	},
+	/**
+	 * [getPoints 根据两点距离生成线段 线段的长度为两点之间的距离 dpi为当前比例  约高线段越多 越低线段越少]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-21
+	 * @param    {Object}   src [起点]
+	 * @param    {Object}   dst [终点]
+	 * @param    {Number}   dpi [分辨率]
+	 * @param    {Number}   len [长度]
+	 * @return   {[type]}       [所有线段]
+	 */
+	getPoints(src, dst, dpi = 1, len) {
+		if (!len) {
+			len = parseInt(src.distanceTo(dst));
+		}
+		
+		len = len * dpi;
+		let items = [];
+		for (let i = 0; i < len; i++) {
+			items.push(src.clone().lerp(dst, i / len))
+		}
+		items.push(dst)
+		return items
+	}
 }

@@ -17,24 +17,20 @@
         //获取Canvas对象(画布)
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
-        let width =100;  
+        let width = 512;  
         let lw = 5;
        ctx.beginPath();
               
             //绘制扇形
-            ctx.arc(width+lw/2,width+lw/2,width,0,2*Math.PI);
-            ctx.strokeStyle="rgba(12,59,147,0.6)";
-            ctx.lineWidth=2;
-            ctx.stroke();
-            var grd = ctx.createRadialGradient(width , width , 2, width , width , width);
-                grd.addColorStop(1, "rgba(12,59,147,0.4)");
-                grd.addColorStop(0.99, "rgba(12,59,147,0.3)");
-                grd.addColorStop(0, "rgba(12,59,147,0)");
-            //填充扇形
+            ctx.arc(width / 2 ,width / 2 ,width / 2,0,2*Math.PI);
+             
+            var grd = ctx.createRadialGradient(width / 2, width / 2 , 2, width / 2, width / 2 , width / 2);
+                grd.addColorStop(1, "rgba(12,59,147,0.0)");
+                grd.addColorStop(0.7, "rgba(12,59,147,0.3)");
+                grd.addColorStop(0, "rgba(12,59,147,0.9)");
+            //填充扇形  
             ctx.fillStyle = grd;
-            ctx.fill()
-            // ctx.fillRect(0,0,width*2,width*2);
-            //当前扇形结束绘制角度，即下一个扇形开始绘制角度
+            ctx.fill() 
      
     </script>
 </body>

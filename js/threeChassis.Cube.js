@@ -1,42 +1,101 @@
-/**
- * [initCube 创建3D魔方]
- * @Author   RAOYN
- * @DateTime 2019-09-10
- * @param    {[type]}   layou [图层]
- * @return   {[type]}         [魔方]
- */
-var initCube = function(layou, option) {
-	let width = option.width || 50;
-	let planeCount = 6;
-	let layoutGroup = new THREE.Group();
-	let outerOption = option.outer || {};
-	let insideOption = option.inside || {};
-	let arueOption = option.arue || {};
-	/**
-	 * [init 开始创建]
-	 * @Author   RAOYN
-	 * @DateTime 2019-09-10 
-	 */
-	function init() {
-		let planeGroup = new THREE.Group();
-		layoutGroup.add(planeGroup);
-		//平面
-		addOuterPlane(width, planeGroup, outerOption, insideOption);
+var initCube = function(layou, _option) {
+	//配置 Config   
+	let df_Config = _Utils.cloneJSON(_Config.Chassis_Config.skinOne.rubik);
+	df_Config = _Utils.setParms(df_Config, _option);
 
+	/*
+	{
+        outerBorderWidth: 1, //外方块边框粗细
+        outerBorderColor: "#5599aa", //外方块边框粗细
+        outerColor: "#5599aa", //外方块背景色
+        row: 4, //方块行数
+        col: 4, //方块列数
+        plateBorderColor: "#5588aa", //板块边框颜色
+        plateColor: "#5588aa", //板块颜色
+        higBorderColor: "#fff", //高亮板块边框颜色
+        higPlateColor: "#fff", //高亮板块颜色
+        arueColor: "#fff",
+        aureEffectColor: "#fff",
+    }
+	 */
+
+	const rubikOpt = {
+		size: 65, //魔方size
+		outer: {
+			gap: 6,
+			cColor: "rgba(74,167,235,0.2)", //canvas 颜色
+			cBorderColor: '#448ff4', //canvas 边框颜色
+			cSize: 512, //生成图片大小 2的N次方
+			color: "#ffffff", //平面几何
+		}, //外平面属性
+		inside: {
+			gap: 6,
+			cColor: [{
+				color: "#70ceff",
+				index: 1,
+			}, {
+				color: "#70ceff",
+				index: 0.999,
+			}, {
+				color: "#02347a",
+				index: 0,
+			}],
+			cBorderColor: "rgba(255,255,255,1)",
+			cSize: 512,
+		}, //内平面属性
+		chassisColor: "rgba(30,83,148,1)",
+		borderColor: "rgba(66,190,228,1)",
+		arue: {
+			rotation: [{
+				rotation: [Math.PI / 2, 1]
+			}, {
+				rotation: [-Math.PI / 2, 1.6]
+			}],
+			radius: 10,
+		}, //圆参数
+	}
+	let group = new THREE.Group();
+	/**
+	 * [init 创建魔方]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-19
+	 * @return   {Mesh}   [返回魔方Mesh]
+	 */
+	this.init = function() {
+
+		let oplane = createOuterPlane({
+			size: rubikOpt.size,
+			border: df_Config.outerBorderWidth,
+			borderColor: df_Config.outerBorderColor,
+			color: df_Config.outerColor,
+			g: group
+		})
+		group.add(oplane);
+		group.position.y = 65;
+		group.rotation.x = 0.78;
+		group.rotation.y = 0.59;
+		group.rotation.z = -1.3;
+
+		let aitems = {
+			rotation: [{
+				rotation: [0.1, 0.5, 0]
+			}, {
+				rotation: [1.3, 0.2, 0]
+			}],
+			radius: 44,
+		}
 		//圆 
-		let arueRadius = arueOption.radius;
-		let points = arueOption.rotation.map(function(elem) {
-			return addArue(width * 1.2, layoutGroup, elem);
+		let arueRadius = 60;
+		let points = aitems.rotation.map(function(elem) {
+			return addArue(arueRadius, group, elem);
 		})
 
-		// addArueCanvas()
-		planeGroup.rotation.y = Math.PI / 4;
-		planeGroup.rotation.x = Math.PI / 4;
-		planeGroup.rotation.z = Math.PI / 2;
-		planeGroup.position.y = width;
-		return {
-			layou: layoutGroup,
-			point: null
+
+		return group
+	}
+	this.setArue = function(index, vec3) { 
+		for(let key in vec3){
+			thm.auras[index].rotation[key] = vec3[key]
 		}
 	}
 	/**
@@ -45,9 +104,16 @@ var initCube = function(layou, option) {
 	 * @DateTime 2019-09-10
 	 * @param    {[type]}   radius [半径]
 	 */
+	let thm = this;
+	this.auras = []; 
+	this.animation = function(){
+		//运动point
+		thm.auras.forEach(elem=>{
+			elem.rotation.z +=0.01;
+		})
+	}
 	function addArue(radius, group, option) {
 		let rotation = option.rotation;
-		console.log(rotation)
 		/*let g = new THREE.Group();
 		group.add(g);*/
 		var curve = new THREE.EllipseCurve(
@@ -58,7 +124,7 @@ var initCube = function(layou, option) {
 			0 // aRotation
 		);
 
-		var points = curve.getPoints(50);
+		var points = curve.getPoints(400);
 		var geometry = new THREE.BufferGeometry().setFromPoints(points);
 
 		var material = new THREE.LineBasicMaterial({
@@ -72,10 +138,10 @@ var initCube = function(layou, option) {
 
 		ellipse.rotation.x = rotation[0];
 		ellipse.rotation.y = rotation[1];
-		ellipse.position.y = radius / 1.2;
+		ellipse.rotation.z = rotation[2];
+		// ellipse.position.y = radius / 1.2;
 		group.add(ellipse);
-
-
+		thm.auras.push(ellipse)
 		//添加光点
 		let pointMap = new THREE.TextureLoader().load(_Assets.point);
 		var geometry = new THREE.BufferGeometry();
@@ -83,13 +149,26 @@ var initCube = function(layou, option) {
 			size: 15,
 			map: pointMap,
 			blending: THREE.AdditiveBlending,
+			// sizeAttenuation: false,
+			depthTest: false,
+			transparent: true,
+
+		});
+		/* let pointMaterial = new THREE.PointsMaterial({
+			size: 15,
+			map: pointMap,
+			blending: THREE.AdditiveBlending,
 			depthTest: true,
 			transparent: true
-		});
+		}); */
 		let src = points[0];
 		geometry.addAttribute('position', new THREE.Float32BufferAttribute([src.x, src.y, 0], 3));
-		var particles = new THREE.Points(geometry, pointMaterial);
 
+		var particles = new THREE.Points(geometry, pointMaterial);
+		particles.userData = {
+			index: 0,
+			point: points
+		}
 		ellipse.add(particles);
 
 
@@ -108,9 +187,8 @@ var initCube = function(layou, option) {
 		var pata = new THREE.Mesh(pgeometry, patmaterial);
 		ellipse.add(pata)
 		// pata.position.z = -50;
-		return points
-	}
-
+		return particles
+	} 
 	//添加平面圆
 	function addPlaneArue(points, radius) {
 		let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
@@ -141,147 +219,210 @@ var initCube = function(layou, option) {
 		return _texture
 	}
 	/**
-	 * [addLattice 创建九宫格]
+	 * [createOuterPlane 创建魔方外圈平面]
 	 * @Author   RAOYN
-	 * @DateTime 2019-09-10
-	 * @param    {[type]}   width [总宽度]
-	 * @return 	 {Group}		  [当前平面组]
+	 * @DateTime 2019-09-19
+	 * @param    {Number}   options.size        [宽高]
+	 * @param    {Number}   options.border      [背景颜色]
+	 * @param    {String}   options.borderColor [边框颜色]
+	 * @param    {String}   options.color       [粗细]
+	 * @param    {String}   options.gap         [间隔]
+	 * @return   {[type]}                       [Group]
 	 */
-	function addLattice(width, textur) {
-
-		var material = new THREE.MeshBasicMaterial({
-			color: 0xffffff,
+	function createOuterPlane({
+		size = 64,
+		border = 2,
+		borderColor = "#1850a6",
+		color = "rgba(16,48,110,0.2)",
+		gap = 4,
+		g
+	} = option = {}) {
+		let texture = createPlaneMap(512, "rgba(85,136,170,0.2)", "rgba(85,136,170,1)");
+		let _group = new THREE.Group();
+		let _p = size / 2;
+		const planeArr = [
+			[_p, 0, 0],
+			[-_p, 0, 0],
+			[0, _p, 0],
+			[0, -_p, 0],
+			[0, 0, _p],
+			[0, 0, -_p]
+		]
+		let colorArr = _Utils.getColorArr(color);
+		//添加6边
+		let material = new THREE.MeshBasicMaterial({
 			side: THREE.BackSide,
 			transparent: true,
 			depthTest: false,
-			depthWrite: false,
-			opacity: 1,
-			map: textur,
-			// blending: THREE.AdditiveBlending
-		});
-		let row = 3;
-		let col = 3;
-		let gap = 2;
-		let pWidth = (width - gap * (row - 1)) / 3;
-		let group = new THREE.Group();
-		var geometry = new THREE.PlaneGeometry(width, width, 2);
-		/*for (let i = 0; i < row; i++) {
-			for (j = 0; j < col; j++) {
-				
-				console.log(i * pWidth + i * group, j * pWidth + j * group, 0)
-				plane.position.set(i * pWidth + i * gap - width / 2 + pWidth / 2, j * pWidth + j * gap - width / 2 + pWidth / 2, 5);
-			
-			}
-		}*/
-		var plane = new THREE.Mesh(geometry, material);
-		plane.position.z = 4.5;
-		group.add(plane);
-		return group;
-	}
-	/**
-	 * [addOuterPlane 创建最外圈平面]
-	 * @Author   RAOYN
-	 * @DateTime 2019-09-10
-	 * @param    {[type]}   width 		  [平面宽度]
-	 * @param    {[type]}   goup 		  [group图层]
-	 * @param    {[type]}   outerOption   [外层参数]
-	 * @param    {[type]}   insideOption  [内层参数]
-	 */
-	function addOuterPlane(width, goup, outerOption, insideOption) {
-		let outer = outerOption;
-		let inside = insideOption;
-		let radius = width / 2;
-		let radiusGl = width / 2 + outerOption.gap || 6;
-		let planeArr = [
-			[radiusGl, 0, 0],
-			[-radiusGl, 0, 0],
-			[0, radiusGl, 0],
-			[0, -radiusGl, 0],
-			[0, 0, radiusGl],
-			[0, 0, -radiusGl]
-		]
-
-		let textur = createPlaneMap(outer.cSize, outer.cColor, outer.cBorderColor);
-		let ChildTextur = createLatticeMap(512, inside.cColor, inside.cBorderColor);
-		let colorArr = _Utils.getColorArr(outer.color);
-		for (let i = 0; i < planeArr.length; i++) {
-			var e = planeArr[i];
-			var geometry = new THREE.PlaneGeometry(width, width, 2);
-			var material = new THREE.MeshBasicMaterial({
-				color: colorArr[0],
-				side: THREE.BackSide,
-				transparent: true,
-				depthTest: false,
-				depthWrite: false,
-				// depthFunc:0,
-				opacity: colorArr[1],
-				map: textur,
-				// blending:THREE.AdditiveBlending
+			color: colorArr[0],
+			opacity: colorArr[1],
+			map: texture,
+		})
+		let geometry = new THREE.PlaneGeometry(size, size, 2);
+		planeArr.forEach(elem => {
+			let mesh = new THREE.Mesh(geometry, material);
+			let vec3 = new THREE.Vector3(elem[0], elem[1], elem[2]);
+			let position = vec3.setLength(vec3.length() + gap);
+			mesh.position.set(...Object.values(position));
+			mesh.lookAt(new THREE.Vector3(0, 0, 0));
+			_group.add(mesh);
+			// mesh.material.alphaTest = 0.2
+			//添加子的平面
+			createInside({
+				goup: mesh,
+				z: 4
 			});
-			var plane = new THREE.Mesh(geometry, material);
-			plane.position.set(e[0], e[1], e[2]);
-			goup.add(plane);
-			plane.lookAt(new THREE.Vector3(0, 0, 0));
-			//添加当前面的九宫格
-			let LatticeGroup = addLattice(width, ChildTextur)
-			plane.add(LatticeGroup);
-		}
-	}
+		})
 
-	function addArueCanvas(width, PI) {
-		let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
-		radnius = getPowNumber(width);
-		canvas.width = width;
-		canvas.height = width;
-		ctx.ellipse(400, 400, 300, 200, 0, 0, Math.PI * 2);
-		ctx.fillStyle = "#058";
-		ctx.strokeStyle = "#000";
-		ctx.fill();
-		ctx.stroke();
+		return _group
 	}
 	/**
-	 * [createLatticeMap 九宫格面贴图]
+	 * [createInside 生成里面的格子]
 	 * @Author   RAOYN
-	 * @DateTime 2019-09-10
-	 * @param    {[type]}   width       [长款]
-	 * @param    {[type]}   color       [颜色]
-	 * @param    {[type]}   borderColor [边框颜色]
-	 * @return   {[type]}               [贴图Map]
+	 * @DateTime 2019-09-19
+	 * @param    {Number}   options.row         [行数]
+	 * @param    {Number}   options.col         [列数]
+	 * @param    {String}   options.borderColor [表框颜色]
+	 * @param    {String}   options.color       [背景色]
+	 * @param    {Number}   options.size        [大小]
+	 * @param    {Number}   options.gap         [间隔]
+	 * @param    {Number}   options.z           [z坐标]
+	 * @param    {Object}   options.goup        [goup]
 	 */
-	function createLatticeMap(width, color = [], borderColor) {
-		let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
-		radnius = getPowNumber(width);
-		canvas.width = width;
-		canvas.height = width;
-		let ctx = canvas.getContext("2d");
-		ctx.beginPath();
-		let radius = 12;
-		let lw = 3;
-		let row = 3;
-		let col = 3;
-		let gap = 10;
-		let pWidth = (width - gap * (row - 1)) / 3;
+	function createInside({
+		row = 4,
+		col = 4,
+		borderColor = "rgba(255,255,255,0.5)",
+		color = "rgba(155,200,244,1)",
+		size = 14,
+		gap = 1,
+		z = 0,
+		goup = {}
+	} = option = {}) {
+		let colorArr = _Utils.getColorArr(color);
+		let geometry = new THREE.PlaneGeometry(size, size, 2);
+		const colorArrs = [{
+			color: "#0a3a7c",
+			index: 1,
+		}, {
+			color: "#052c5e",
+			index: 0.999,
+		}, {
+			color: "#1e6dc6",
+			index: 0,
+		}]
+		const colorArrsHight = [{
+			color: "#52bcfe",
+			index: 1,
+		}, {
+			color: "#52bcfe",
+			index: 0.999,
+		}, {
+			color: "#52bcfe",
+			index: 0,
+		}]
+		let texture = createInsidePlane({
+			size: 128,
+			border: 2,
+			borderColor: "#fff",
+			color: "#fff",
+			colorArrs:colorArrs,
+			fontColor:"#4bc9ee"
+		})
+		let textureHight = createInsidePlane({
+			size: 128,
+			border: 2,
+			borderColor: "#fff",
+			color: "#fff",
+			colorArrs:colorArrsHight,
+			fontColor:"#fff"
+		})
+		let materialArr = [];
+		let material = new THREE.MeshBasicMaterial({
+			side: THREE.FrontSide, 
+			color: new THREE.Color("#ffffff"), 
+			opacity: 2,
+			map: texture
+		});	
+		let materialHight = new THREE.MeshBasicMaterial({
+			side: THREE.FrontSide, 
+			color: new THREE.Color("#ffffff"), 
+			opacity: 2,
+			map: textureHight
+		});
+		materialArr.push(material)
+		materialArr.push(materialHight)
+		const totalWidth = size * row + gap * (row - 1);
 		for (let i = 0; i < row; i++) {
 			for (let j = 0; j < col; j++) {
-				let x = i * pWidth + i * gap;
-				let y = j * pWidth + j * gap;
-				//线条
-				strokeRoundRect(ctx, x, y, pWidth, pWidth, radius, lw, borderColor);
-				var grd = ctx.createRadialGradient(pWidth / 2, pWidth / 2, 18, pWidth / 2, pWidth / 2, pWidth);
-				for (let i = 0; i < color.length; i++) {
-					grd.addColorStop(color[i].index, color[i].color);
-				}
-				//填充中心
-				fillRoundRect(ctx, x + lw / 2, y + lw / 2, pWidth - lw, pWidth - lw, radius, grd);
-
+				let mesh = new THREE.Mesh(geometry,Math.random()<0.8? material:materialHight);
+				let x = i * size + i * gap - totalWidth / 2 + size / 2;
+				let y = j * size + j * gap - totalWidth / 2 + size / 2;
+				mesh.position.set(x, y, z);
+				mesh.rotation.y = Math.PI
+				goup.add(mesh)
+				// mesh.material.alphaTest = 0.1
 
 			}
 		}
+	}
+	/**
+	 * [createInsidePlane 创建内平面]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-19
+	 * @param    {Number}   options.size        [description]
+	 * @param    {Number}   options.border      [description]
+	 * @param    {String}   options.borderColor [description]
+	 * @param    {String}   options.color       [description]
+	 * @return   {[type]}                       [description]
+	 */
+	function createInsidePlane({
+		size = 54,
+		border = 2,
+		fontColor="#fff",
+		borderColor = "#fff",
+		color = "#fff",
+		colorArrs = []
+	} = option = {}) {
+		let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
+		size = getPowNumber(size);
+		canvas.width = size;
+		canvas.height = size;
+		let ctx = canvas.getContext("2d");
+		ctx.beginPath();
+		let radius = 10;
+		let lw = 4;
+		
+		var grd = ctx.createRadialGradient(size / 2, size / 2, 18, size / 2, size / 2, size);
+		for (let i = 0; i < colorArrs.length; i++) {
+			grd.addColorStop(colorArrs[i].index, colorArrs[i].color);
+		}
+		ctx.fillStyle = "#02347a"
+		ctx.fill();
+		roundRect(ctx, {
+			x: 0,
+			y: 0,
+			width: size,
+			radius: radius,
+			lineWidth: lw,
+			color: grd,
+			borderColor: borderColor,
+			name: "单位12"
+		})
+		addText(ctx, "单位1", 24, fontColor, size)
 		let _texture = new THREE.Texture(canvas);
 		_texture.needsUpdate = true;
 		return _texture
 	}
-
+	/**
+	 * [createPlaneMap 创建平面贴图]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-19
+	 * @param    {Number}   width       [宽度]
+	 * @param    {String}   color       [颜色]
+	 * @param    {String}   borderColor [边框色彩]
+	 * @return   {[type]}               [贴图]
+	 */
 	function createPlaneMap(width, color, borderColor) {
 		let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
 		radnius = getPowNumber(width);
@@ -290,80 +431,77 @@ var initCube = function(layou, option) {
 		let ctx = canvas.getContext("2d");
 		ctx.beginPath();
 		let radius = 24;
-		let lw = 7;
-		strokeRoundRect(ctx, 0, 0, width, width, radius, lw, color);
-		fillRoundRect(ctx, lw / 4, lw / 4, width - lw / 2, width - lw / 2, radius, borderColor);
-
-		/*strokeRoundRect(ctx, position, position, position, position, 10);
-		//绘制并填充一个圆角矩形  
-		fillRoundRect(ctx, position, position, position, position, 10, 'rgba(0,0,0,0.7)')*/
+		let lw = 4;
+		roundRect(ctx, {
+			x: 0,
+			y: 0,
+			width: width - 4,
+			radius: radius,
+			lineWidth: lw,
+			color: color,
+			borderColor: borderColor
+		})
 		let _texture = new THREE.Texture(canvas);
 		_texture.needsUpdate = true;
 		return _texture
 	}
-
-
-	function strokeRoundRect(ctx, x, y, width, height, radius, lineWidth, strokeColor) {
-		//圆的直径必然要小于矩形的宽高     
-		if (2 * radius > width || 2 * radius > height) {
-			return false;
-		}
-		ctx.save();
-		ctx.translate(x, y);
-		//绘制圆角矩形的各个边  
-		drawRoundRectPath(ctx, width, height, radius);
-		ctx.lineWidth = lineWidth || 2; //若是给定了值就用给定的值否则给予默认值2  
-		ctx.strokeStyle = strokeColor;
-		ctx.stroke();
-		ctx.restore();
-	}
-
-	function fillRoundRect(ctx, x, y, width, height, radius, /*optional*/ fillColor) {
-		//圆的直径必然要小于矩形的宽高          
-		if (2 * radius > width || 2 * radius > height) {
-			return false;
-		}
-
-		ctx.save();
-		ctx.translate(x, y);
-		//绘制圆角矩形的各个边   
-		drawRoundRectPath(ctx, width, height, radius);
-		ctx.fillStyle = fillColor || "#fff"; //若是给定了值就用给定的值否则给予默认值  
-		ctx.fillRect(0, 0, width, width);
-		ctx.fill()
-		ctx.restore();
-
-		ctx.save();
+	/**
+	 * [addSpriteText 添加中文字体]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-16
+	 * @param    {String}   ctx         [ctx]
+	 * @param    {String}   text        [字]
+	 * @param    {String}   fontSzie    [字体大小]
+	 * @param    {String}   color       [颜色]
+	 * @return   {Texture}              [Mesh]
+	 */
+	function addText(ctx, text, fontSzie = 24, color = "#ffffff", width) {
+		ctx.beginPath();
+		ctx.fillStyle = color;
+		ctx.font = fontSzie + "px 微软雅黑";
+		ctx.font = fontSzie + "px 微软雅黑";
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'center';
+		ctx.fillText(text, width / 2, width / 2 + fontSzie / 2);
 
 	}
-
-	function drawRoundRectPath(ctx, width, height, radius) {
-		ctx.beginPath(0);
-		//从右下角顺时针绘制，弧度从0到1/2PI  
-		ctx.arc(width - radius, height - radius, radius, 0, Math.PI / 2);
-
-		//矩形下边线  
-		ctx.lineTo(radius, height);
-
-		//左下角圆弧，弧度从1/2PI到PI  
-		ctx.arc(radius, height - radius, radius, Math.PI / 2, Math.PI);
-
-		//矩形左边线  
-		ctx.lineTo(0, radius);
-
-		//左上角圆弧，弧度从PI到3/2PI  
-		ctx.arc(radius, radius, radius, Math.PI, Math.PI * 3 / 2);
-
-		//上边线  
-		ctx.lineTo(width - radius, 0);
-
-		//右上角圆弧  
-		ctx.arc(width - radius, radius, radius, Math.PI * 3 / 2, Math.PI * 2);
-
-		//右边线  
-		ctx.lineTo(width, height - radius);
+	/**
+	 * [roundRect 生成有边框的铁图]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-19
+	 * @param    {[type]}   ctx               	[canvas ctx]
+	 * @param    {Number}   options.x         	[x]
+	 * @param    {Number}   options.y         	[y]
+	 * @param    {Number}   options.width     	[width]
+	 * @param    {Number}   options.radius    	[radius]
+	 * @param    {Number}   options.lineWidth 	[边框宽度]
+	 * @param    {Number}   options.color		[颜色]
+	 * @param    {Number}   options.borderColor [边框颜色]
+	 * @return   {[type]}                     	[]
+	 */
+	function roundRect(ctx, {
+		x = 0,
+		y = 0,
+		width = 20,
+		radius = 5,
+		lineWidth = 2,
+		color = "#fff",
+		borderColor = "#fff",
+	} = option = {}) {
+		ctx.beginPath();
+		ctx.moveTo(x + radius, y);
+		ctx.arcTo(x + width, y, x + width, y + width, radius);
+		ctx.arcTo(x + width, y + width, x, y + width, radius);
+		ctx.arcTo(x, y + width, x, y, radius);
+		ctx.arcTo(x, y, x + width, y, radius);
+		ctx.lineWidth = lineWidth;
+		ctx.fillStyle = color;
+		ctx.fill();
+		ctx.strokeStyle = borderColor;
+		ctx.stroke()
 		ctx.closePath();
 	}
+
 	/**
 	 * [getPowNumber 将数值处理成2的n次方]
 	 * @Author   RAOYN
@@ -378,5 +516,5 @@ var initCube = function(layou, option) {
 		return h
 	}
 
-	return init()
+
 }

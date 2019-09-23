@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="../assets/three98.js"></script>
-    <script src="./libs/tween.min.js"></script>
-    <script src="../js/libs/dat.gui.min.js"></script>
+     <script src="../js/libs/stats.min.js"></script> 
     <script src="./utils/flying.js"></script>
     <script src="../js/controls/OrbitControls.js"></script>
     <script src="./utils/index.js"></script>
@@ -36,19 +35,53 @@
 <body>
     <div class="" id="app"></div>
     <script>
-
+        let fly = null;
+        let point = null;
         let basic = new init({
             id: "#app",
             load(option) {
                 var items = [];
-                const random = ()=> Math.random()<0.5? Math.random() * 1000: Math.random() * -1000;
-                for (let i = 0; i < 100; i++) {
+                const random = ()=> Math.random()<0.5? Math.random() * 200: Math.random() * -200;
+                for (let i = 0; i < 130; i++) {
+                    let d = new THREE.Vector3(random(),i%100, random());
+                    d.setLength(300*Math.random()+100);
                     items.push({
-                        src:[random(), random(), random()],
-                        dst:[random(), random(), random()]
+                        dst:[0,0,0],
+                        src:[...Object.values(d)]
+                    })
+                }                 
+                let config = {
+                    color:"rgba(8,36,54,1)",
+                    size:20,
+                    length:120,
+                    dpi:2,
+                    speed:1,
+                    img: new THREE.TextureLoader().load('./image/meshline.png')
+                }
+                fly = new flying(option);
+                let g = fly.initFly (items,config);
+                option.scene.add(g);
+                point = new initPoint()
+                let pg = point.initPoint({
+                    size:5,
+                    img:new THREE.TextureLoader().load('./image/50.png'),
+                    number:130,
+                    height:200
+                })
+                 point.addPoint(new THREE.Vector3( 0, 0, 0 )); 
+                option.scene.add(pg);
+            },
+            animation(delta){
+                if(fly){
+                    fly.animation(delta,function(){
+                        point.addPoint(new THREE.Vector3( 0, 0, 0 )); 
                     })
                 }
-                flying(option, items)
+                if(point){
+                    point.animation(delta,function(){
+
+                    })
+                }
             }
         })
     </script>

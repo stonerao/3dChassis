@@ -39,6 +39,10 @@ var init = function (option) {
 				camera, controls, scene, renderer
 			})
 		}
+		if (Stats) {
+                stats = new Stats(); 
+                document.querySelector(option.id).appendChild(stats.dom);
+            }
 	}
 	function onWindowResize() {
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -50,9 +54,10 @@ var init = function (option) {
 		var delta = clock.getDelta();
 		renderer.render(scene, camera);
 		if (option.animation) option.animation(delta);
+		 if(stats) stats.update();
 	}
 	function setControls(controls, opts) {
-		controls.enablePan = false;
+		/*controls.enablePan = false;
 		controls.enableKeys = opts.enablePan;
 		controls.enableZoom = opts.enableZoom;
 		controls.enableRotate = opts.enableRotate;
@@ -72,7 +77,7 @@ var init = function (option) {
 		controls.minPolarAngle = opts.polarAngle[0];
 		controls.maxPolarAngle = opts.polarAngle[1];
 		controls.minAzimuthAngle = opts.azimuthAngle[0];
-		controls.maxAzimuthAngle = opts.azimuthAngle[1];
+		controls.maxAzimuthAngle = opts.azimuthAngle[1];*/
 
 	}
 	init();

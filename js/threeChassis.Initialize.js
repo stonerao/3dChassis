@@ -18,6 +18,7 @@
         thm.camera;
         thm.renderer;
         thm.controls;
+        let stats;
         //数字变量
         thm.GId = "";
         thm.Result = "";
@@ -41,9 +42,10 @@
          * @DateTime 2019-8-27 09:20:22
          * @param    {[string/object]}   cts        [容器id或者容器dom对象]
          * @param    {[object]}          config     [配置参数]
+         * @param    {[object]}          option     [使用参数 数据等]
          * @return   {[void/error]}                 [初始化错误返回错误提示]
          */
-        thm.init = function(cts, config) {
+        thm.init = function(cts, config, option) {
             var conts = cts;
             if (_Utils.detector && conts !== null) {
                 try {
@@ -59,7 +61,7 @@
 
                     //initiate 
                     initiate();
-                    initiateChassis();
+                    initiateChassis(option);
                     //注册鼠标事件
                     thm.renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
                 } catch (err) {
@@ -119,9 +121,10 @@
 
             // renderer
             thm.renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true,
+            antialias: true,
+                alpha: true, 
             });
+        //   thm.renderer.sortObjects = false;
             // thm.renderer.shadowMap.enabled = Basic_Config.controls.shadow;
             thm.renderer.setClearColor(backgroundConfig.color, backgroundConfig.opacity);
             thm.renderer.setSize(df_Width, df_Height);
@@ -135,18 +138,24 @@
 
             df_Mouse = new THREE.Vector2();
             df_Raycaster = new THREE.Raycaster();
+
+            if (Stats) {
+                stats = new Stats(); 
+                thm.container.append(stats.dom);
+            }
         }
         /**
          * [initiateChassis 创建底盘轮播组件]
-         * @Author   RAOYAN
+         * @Author   RAOYAN、
          * @DateTime 2019-8-27 14:41:02
+         * @param    {Object}    option    [data 数据]
          */
-        function initiateChassis() {
+        function initiateChassis(option) {
             thm.layoutObject = new THREE.Group();
             thm.scene.add(thm.layoutObject);
             //初始化转盘
             thm.C_Layer = new Chassis_Layer(thm);
-            thm.C_Layer.init(_Config.Chassis_Config.skinOne)
+            thm.C_Layer.init(_Config.Chassis_Config.skinOne, option);
 
             // thm.init_cube = new initCube(thm);
             // let cube = thm.init_cube.init();
@@ -174,6 +183,8 @@
                     fnc.bind(thm)(delta);
                     thm.renderer.render(thm.scene, thm.camera);
                     globel.requestAnimationFrame(Animations);
+                    if(stats) stats.update();
+
                 } else {
                     //
                     thm.renderer.dispose();

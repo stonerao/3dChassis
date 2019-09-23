@@ -26,7 +26,7 @@ var _Collects = {
     },
     initMeshLine: function() {
         function MeshLine() {
-            this.positions = []; 
+            this.positions = [];
             this.previous = [];
             this.next = [];
             this.side = [];
@@ -34,9 +34,9 @@ var _Collects = {
             this.indices_array = [];
             this.uvs = [];
             this.counters = [];
-            this.geometry = new THREE.BufferGeometry(); 
-            this.widthCallback = null; 
-        } 
+            this.geometry = new THREE.BufferGeometry();
+            this.widthCallback = null;
+        }
         MeshLine.prototype.setGeometry = function(g, c) {
 
             this.widthCallback = c;
@@ -540,5 +540,24 @@ var _Collects = {
             MeshLine: MeshLine,
             MeshLineMaterial: MeshLineMaterial
         }
-    }
+    },
+    initPoint(size = 8) {
+        let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
+        canvas.width = size;
+        canvas.height = size;
+        let ctx = canvas.getContext("2d");
+        ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+
+        var grd = ctx.createRadialGradient(size / 2, size / 2, 2, size / 2, size / 2, size / 2);
+        grd.addColorStop(1, "rgba(255,255,255,0.0)");
+        grd.addColorStop(0.7, "rgba(255,255,255,0.3)");
+        grd.addColorStop(0, "rgba(255,255,255,0.9)");
+        //填充扇形  
+        ctx.fillStyle = grd;
+        ctx.fill()
+        let _texture = new THREE.Texture(canvas);
+        _texture.needsUpdate = true;
+        return _texture
+    },
+    
 }
