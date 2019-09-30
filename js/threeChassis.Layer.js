@@ -34,22 +34,12 @@ var Chassis_Layer = function(layout) {
     //连线
     thm.lineMesh = null;
     thm.haloAuraMesh = null;
-    //转盘旋转方向 1 正 2反 0 停
-    thm.chassisRotate = 0;
-    //旋转速度 每帧数
-    thm.chassisRotateSpeed = 0.001;
+    //转盘旋转方向 正为顺时针  负为逆时针 0为不懂    
+    thm.chassisRotateSpeed = 0;
 
     //line
     let _Line = null;
 
-    /**
-     * [initChassis 创建轮盘组件]
-     * @Author   RAOYN
-     * @DateTime 2019-09-04 
-     */
-    function initChassis() {
-
-    }
     /**
      * [init 调用方法，根据不同的参数生成不同的样式]
      * @Author   RAOYN
@@ -69,15 +59,15 @@ var Chassis_Layer = function(layout) {
         switch (~~df_Config.cube) {
             case 1:
                 //中间图 
-                
-               createInsideImg(df_Config.insideImg, {
+
+                /* createInsideImg(df_Config.insideImg, {
                     x: df_Config.insideX,
                     y: df_Config.insideY,
                     z: df_Config.insideZ,
                     width: 128,
                     height: 128,
                     DPI: 1
-                }); 
+                }); */
                 break;
             case 2:
                 thm.threeCube = new initCube(thm.layout, df_Config.rubik);
@@ -85,7 +75,6 @@ var Chassis_Layer = function(layout) {
                 /*thm.Cube3D = thm.threeCube.layou;
                 thm.PointCube = thm.threeCube.point;
                 thm.Cube3D.name = "cube3d"*/
-                console.log(thm.threeCube)
                 thm.layout.add(thm.threeCube.init())
                 break;
         }
@@ -126,19 +115,31 @@ var Chassis_Layer = function(layout) {
         _Line = new initLinePoint({
             layout: thm.layout
         })
+        console.log(df_Config)
         _Line.add({
             point: {},
             data: thm.lineArrPosition,
             line: {
                 style: df_Config.lineStyle,
                 color: df_Config.lineColor,
-                gradient: 0, 
+                gradient: 0,
             },
             fly: {
-                texture: haloAssets
+                show: df_Config.flyShow,
+                texture: new THREE.TextureLoader().load("./image/point.png"),
+                size: df_Config.flySize,
+                speed: df_Config.flySpeed,
+                lenth: df_Config.flyLength,
+                dpi: df_Config.flyDpi
             },
-            point:{
-                 texture: haloAssets
+            point: {
+                show: df_Config.pointShow,
+                texture: haloAssets,
+                size: df_Config.pointSize,
+                height: df_Config.pointHeight,
+                color: df_Config.pointColor,
+                number: df_Config.pointNumber,
+                speed: df_Config.pointSpeed
             }
         })
         //添加连线 默认实线
@@ -155,17 +156,8 @@ var Chassis_Layer = function(layout) {
     let len = 0;
     thm.animation = function(delta) {
         //旋转
-        switch (thm.chassisRotate) {
-            case 0 || "0":
-                break;
-            case 1 || "1":
-                //正
-                thm.layout.rotation.y -= thm.chassisRotateSpeed;
-                break;
-            case 2 || "2":
-                //反
-                thm.layout.rotation.y += thm.chassisRotateSpeed;
-                break;
+        if (thm.chassisRotateSpeed != 0) {
+            thm.layout.rotation.y += thm.chassisRotateSpeed;
         }
         // 飞线
         /* thm.haloGroup.children.forEach(function(mesh) {
@@ -188,9 +180,9 @@ var Chassis_Layer = function(layout) {
             thm.fly.animation(delta, function() {
                 thm.point.addPoint(new THREE.Vector3(0, Math.random() * 30, 0));
             })
-        } 
+        }
         if (_Line) {
-           _Line.animation(delta)
+            _Line.animation(delta)
         }
         if (thm.point) {
             thm.point.animation(delta, function() {
@@ -257,12 +249,10 @@ var Chassis_Layer = function(layout) {
         ////////
         // 基础 //
         ////////
-        //旋转方向
-        if (option.hasOwnProperty("chassisRotate")) {
-            thm.chassisRotate = option.chassisRotate;
-        }
-        if (option.hasOwnProperty("chassisRotateSpeed")) {
-            thm.chassisRotateSpeed = option.chassisRotateSpeed * 0.001;
+        //旋转方向 0为不运动  -1 为逆时针 0为顺时针
+        if (option.hasOwnProperty("chassisSetRotate")) {
+            let n = _Utils.parseNumber(option.chassisSetRotate);
+            thm.chassisRotateSpeed = n * 0.001;
         }
         ///////
         //中心 //
@@ -314,88 +304,78 @@ var Chassis_Layer = function(layout) {
             thm.haloMesh.scale.set(size, size, size);
         }
 
-        if (option.hasOwnProperty("lightDotColor")) {
-            let color = _Utils.getColorArr(option.lightDotColor);
-            thm.haloGroup.children.forEach(function(elem) {
-                elem.material.color = color[0];
-                elem.material.opacity = color[1];
-                elem.material.needsUpdate = true;
-            })
-        }
 
         ///////
         //线条 //
         ///////
         //修改线条样式
         if (option.hasOwnProperty("lineStyle")) {
-            //材质
-            let _m = thm.lineMesh.material;
-            let _material = {
-                color: _m.color,
-                opacity: _m.opacity,
-                linewidth: 1
-            }
-            switch (option.lineStyle) {
-                //实线
-                case "solid":
-                    thm.lineMesh.material = new THREE.LineBasicMaterial({
-                        ..._material
-                    })
-                    break;
-                    //虚线
-                case "dashed":
-                    thm.lineMesh.material = new THREE.LineDashedMaterial({
-                        scale: 2,
-                        dashSize: 4,
-                        gapSize: 4,
-                        ..._material
-                    })
-                    thm.lineMesh.computeLineDistances();
-                    break;
-            }
-            _m.dispose();
-            _m = null;
+            //材质 
+            _Line.update("line", {
+                type: option.lineStyle
+            })
         }
         //修改线条颜色
         if (option.hasOwnProperty("lineColor")) {
             let colorArr = _Utils.getColorArr(option.lineColor);
-            thm.lineMesh.material.opacity = colorArr[1];
-            thm.lineMesh.material.color = colorArr[0];
-            thm.lineMesh.material.needsUpdate = true;
+            _Line.update("line", {
+                color: option.lineColor
+            })
         }
-        //修改粒子颜色
+        //改变飞线长度个数
+        if (option.hasOwnProperty("flyLength")) {
+            _Line.update("fly", {
+                flyLength: option.flyLength
+            })
+        }
+        //改变飞线粒子大小
+        if (option.hasOwnProperty("flySize")) {
+            _Line.update("fly", {
+                flySize: option.flySize
+            })
+        }
+        if (option.hasOwnProperty("flyColor")) {
+            _Line.update("fly", {
+                flyColor: option.flyColor
+            })
+        }
+        if (option.hasOwnProperty("flyOrder")) {
+            _Line.update("fly", {
+                flyOrder: JSON.parse(option.flyOrder)
+            })
+        }
         if (option.hasOwnProperty("pointColor")) {
+            _Line.update("point", {
+                pointColor: option.pointColor
+            })
+        }
+        if (option.hasOwnProperty("pointSize")) {
+            _Line.update("point", {
+                pointSize: option.pointSize
+            })
+        }
+        if (option.hasOwnProperty("pointSpeed")) {
+            _Line.update("point", {
+                pointSpeed: option.pointSpeed
+            })
+        }
+        if (option.hasOwnProperty("pointNumber")) {
+            _Line.update("point", {
+                pointNumber: option.pointNumber
+            })
+        }
+        if (option.hasOwnProperty("pointHeight")) {
+            _Line.update("point", {
+                pointHeight: option.pointHeight
+            })
+        }
+
+        //修改粒子颜色
+        /* if (option.hasOwnProperty("pointColor")) {
             const colorArr = _Utils.getColorArr(option.pointColor);
             thm.pointMesh.material.uniforms.color.value = colorArr[0];
             thm.pointMesh.material.uniforms.alphas.value = colorArr[1];
-        }
-        //修改粒子运动速度
-        if (option.hasOwnProperty("pointSpeed")) {
-            thm.pointMesh.material.uniforms.speed.value = option.pointSpeed;
-        }
-        //修改粒子数量
-        if (option.hasOwnProperty("pointNumber")) {
-            let positionArr = circleArr.map(function(elem) {
-                return new THREE.Vector3(elem.pre[0], 0, elem.pre[1]);
-            });
-            const pointN = option.pointNumber || 10; //粒子数量  
-            const index = [];
-            const position = [];
-            const size = thm.pointMesh.userData.size;
-            const radius = size / 2;
-            //position  当前索引   
-            positionArr.forEach(elem => {
-                for (let i = 0; i < pointN; i++) {
-                    let x = THREE.Math.randFloat(-radius, radius) + elem.x;
-                    let y = -size //THREE.Math.randFloat(-radius*1.5,  - radius*2.5) ;
-                    let z = THREE.Math.randFloat(-radius, radius) + elem.z;
-                    position.push(x, y, z);
-                    index.push(i + 3)
-                }
-            })
-            thm.pointMesh.geometry.addAttribute('position', new THREE.Float32BufferAttribute(position, 3));
-            thm.pointMesh.geometry.addAttribute('indexs', new THREE.Float32BufferAttribute(index, 1));
-        }
+        } */
         //立方体
         if (option.hasOwnProperty("cubeSize")) {
             const size = option.cubeSize;
@@ -969,21 +949,7 @@ var Chassis_Layer = function(layout) {
             opacity: 1,
             depthTests: true,
         });
-        let pointMap = new THREE.TextureLoader().load(_Assets.point);
-        //圆圈材质
-        let arueMaterial = new THREE.LineBasicMaterial({
-            color: 0xffffff,
-            opacity: 0.2,
-            transparent: true
-        });
-        let pM = new THREE.PointsMaterial({
-            size: 5,
-            map: pointMap,
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true
-        });
-        let poins = [];
+
         let cone = [];
         for (let i = 0; i < info.length; i++) {
             //生成cube
@@ -1001,62 +967,6 @@ var Chassis_Layer = function(layout) {
             g.position.set(vec3.x, vec3.y + cubeSize / 2, vec3.z);
             g.lookAt(new THREE.Vector3(0, 0, 0));
             g.scale.set(cubeSize / 1.7, cubeSize, cubeSize / 1.7);
-            //plane
-            continue
-            let planeGeo = new THREE.PlaneBufferGeometry(15, 15, 2);
-            let planeTextur = createOuterRing(128, 0.4);
-            let planeMater = new THREE.MeshBasicMaterial({
-                color: 0x5588aa,
-                side: THREE.DoubleSide,
-                map: planeTextur,
-                transparent: true,
-                depthTest: false,
-            });
-            let plane = new THREE.Mesh(planeGeo, planeMater);
-            plane.rotation.x -= Math.PI / 2;
-            plane.position.y = cubeSize / 2 + 1;
-            g.add(plane)
-            //圆圈 
-            for (let j = 0; j < 3; j++) {
-                let arue = addArueMesh(cubeSize / (2.5 - 0.5 * j), arueMaterial);
-                let y = (cubeSize / 4 * (1 - j * 1)) || 0;
-                arue.mesh.position.y = (cubeSize / 4 * (1 - j * 1)) || 0;
-                cubeMesh.add(arue.mesh);
-                let positions = arue.points.map(elem => {
-                    return [elem.x, y, elem.y]
-                })
-                let point = addPoint(arue.points[0], arue.mesh.position.y);
-                point.userData = {
-                    type: 0,
-                    index: parseInt(Math.random() * positions.length),
-                    position: positions
-                }
-                cubeMesh.add(point);
-                poins.push(point);
-            }
-
-
-        }
-        /* setInterval(() => {
-            let i = 0;
-            cone.forEach(function (elem) {
-                elem.rotation.y += 0.05;
-            })
-            poins.forEach((elem, index) => {
-                if (elem.userData.index >= elem.userData.position.length) {
-                    elem.userData.index = 0;
-                }
-                let p = elem.userData.position[elem.userData.index];
-                elem.position.set(...p)
-                elem.userData.index++;
-            })
-        }, 120) */
-
-        function addPoint(position, y) {
-            var geometry = new THREE.BufferGeometry();
-            geometry.addAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
-            var particles = new THREE.Points(geometry, pM);
-            return particles
         }
 
 
@@ -1198,167 +1108,8 @@ var Chassis_Layer = function(layout) {
             thm.layout.add(thm.insidePoint);
         });
     }
-    /**
-     * [getPoints 根据两点获取一定段数的节点]
-     * @Author   RAOYN
-     * @DateTime 2019-09-20
-     * @param    {Object}   src [起始]
-     * @param    {Object}   dst [终点]
-     * @param    {Number}   dpi [比例]
-     * @param    {Number}   len [长度]
-     * @return   {[type]}       [生成之后的数组]
-     */
-    function getPoints(src = {}, dst = {}, dpi = 1, len = 10) {
-        if (!len) {
-            len = src.distanceTo(dst);
-        }
-        len = len * dpi;
-        let items = [];
-        for (let i = 0; i < len; i++) {
-            items.push(src.clone().lerp(dst, i / len))
-        }
-        items.push(dst)
-        return items
-    }
-
-    /**
-     * [createGradientLine 渐变的线条]
-     * @Author   RAOYN
-     * @DateTime 2019-09-05
-     * @param    {[type]}   lineStyle [线条样式，实线虚线光线光带等]
-     * @param    {String}   color     [线条颜色] 
-     */
-    function createGradientLine(lineStyle, color = "rgba(255,255,255,1)") {
-        let colorArr = _Utils.getColorArr(color);
-        let linePositionArr = [];
-        let line_mat = null;
-        let line_mat_params = {
-            color: colorArr[0],
-            opacity: colorArr[1],
-            linewidth: 1,
-        }
-        var shader = {
-            vertexshader: ` 
-                attribute float alphas;
-                varying float Valphas;
-                void main(){ 
-                    Valphas = alphas;
-                    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-                    gl_Position = projectionMatrix * mvPosition;   
-                }
-            `,
-            fragmentshader: `
-                uniform vec3 color; 
-                uniform float u_opacity; 
-                varying float Valphas;
-                void main(){  
-                   gl_FragColor = vec4(color,Valphas); 
-                }
-            `
-        }
-        let buffer = new THREE.BufferGeometry();
-        let material = new THREE.ShaderMaterial({
-            uniforms: {
-                color: {
-                    value: colorArr[0]
-                },
-                u_opacity: {
-                    value: 1.2,
-                    type: "f"
-                }
-            },
-            transparent: true,
-            depthTest: false,
-            side: THREE.DoubleSide,
-            // blending: THREE.AdditiveBlending,
-            vertexShader: shader.vertexshader,
-            fragmentShader: shader.fragmentshader
-        });
-        let position = [];
-        let opacity = [];
-        thm.lineArrPosition.forEach(function(elem) {
-            let src = elem.src;
-            let dst = elem.dst;
-            let points = getPoints(src, dst, 1, 90);
-            points.forEach(function(vec, index) {
-                if (index % 2 == 0) {
-                    position.push(vec.x, vec.y, vec.z);
-                    opacity.push(index / points.length * index / points.length + 0.1)
-                }
-            })
-            /*linePositionArr.push(src.x, src.y, src.z);
-            linePositionArr.push(dst.x, dst.y, dst.z);*/
-        })
-        buffer.addAttribute("position", new THREE.Float32BufferAttribute(position, 3))
-        buffer.addAttribute("alphas", new THREE.Float32BufferAttribute(opacity, 1))
-        let line = new THREE.LineSegments(buffer, material);
-        line.computeLineDistances();
-        thm.layout.add(line);
 
 
-        /*//加入顶点
-        thm.lineArrPosition.forEach(function(elem) {
-            let src = elem.src;
-            let dst = elem.dst;
-            linePositionArr.push(src.x, src.y, src.z);
-            linePositionArr.push(dst.x, dst.y, dst.z);
-        })
-        lineGeometry.addAttribute("position", new THREE.Float32BufferAttribute(linePositionArr, 3))
-
-        thm.lineMesh = new THREE.LineSegments(lineGeometry, line_mat);
-        thm.layout.add(thm.lineMesh);
-        //如果是虚线  执行虚线方法
-        if (lineStyle === 'dashed') {
-            thm.lineMesh.computeLineDistances();
-        }*/
-    }
-    /**
-     * [createLine 生成中心店连接外圈的连线]
-     * @Author   RAOYN
-     * @DateTime 2019-09-05
-     * @param    {[type]}   lineStyle [线条样式，实线虚线光线光带等]
-     * @param    {String}   color     [线条颜色] 
-     */
-    function createLine(lineStyle, color = "rgba(255,255,255,1)") {
-        let colorArr = _Utils.getColorArr(color);
-        let linePositionArr = [];
-        let line_mat = null;
-        let line_mat_params = {
-            color: colorArr[0],
-            opacity: colorArr[1],
-            linewidth: 1,
-        }
-        let lineGeometry = new THREE.BufferGeometry();
-        //根据type生成不同类型的线条类型
-        if (lineStyle === 'dashed') {
-            line_mat = new THREE.LineDashedMaterial({
-                scale: 2,
-                dashSize: 4,
-                gapSize: 4,
-                ...line_mat_params
-            });
-        } else {
-            line_mat = new THREE.LineBasicMaterial({
-                linewidth: 1,
-                ...line_mat_params
-            });
-        }
-        //加入顶点
-        thm.lineArrPosition.forEach(function(elem) {
-            let src = elem.src;
-            let dst = elem.dst;
-            linePositionArr.push(src.x, src.y, src.z);
-            linePositionArr.push(dst.x, dst.y, dst.z);
-        })
-        lineGeometry.addAttribute("position", new THREE.Float32BufferAttribute(linePositionArr, 3))
-
-        thm.lineMesh = new THREE.LineSegments(lineGeometry, line_mat);
-        thm.layout.add(thm.lineMesh);
-        //如果是虚线  执行虚线方法
-        if (lineStyle === 'dashed') {
-            thm.lineMesh.computeLineDistances();
-        }
-    }
 
     function setLineGeometry(vecs) {
         //更新线条的顶点
@@ -1479,16 +1230,16 @@ var Chassis_Layer = function(layout) {
             speed: 2,
             img: haloAssets
         }
-       
+
         // thm.fly = new initFlys({});
-      /*   let items = position.map(elem => {
-            return {
-                dst: [elem.src.x, elem.src.y, elem.src.z],
-                src: [elem.dst.x, elem.dst.y, elem.dst.z]
-            }
-        })
-        let g = thm.fly.initFiy(items, config);
-        thm.haloGroup.add(g); */
+        /*   let items = position.map(elem => {
+              return {
+                  dst: [elem.src.x, elem.src.y, elem.src.z],
+                  src: [elem.dst.x, elem.dst.y, elem.dst.z]
+              }
+          })
+          let g = thm.fly.initFiy(items, config);
+          thm.haloGroup.add(g); */
         // thm.point = new initPoint()
         /* let pg = thm.point.initPoint({
             size: 5,
@@ -1659,7 +1410,7 @@ var Chassis_Layer = function(layout) {
         _texture.needsUpdate = true;
         return _texture
     }
-   
+
     /**
      * [createHalo 生成发光光环]
      * @Author   RAOYN
@@ -1684,7 +1435,7 @@ var Chassis_Layer = function(layout) {
         thm.haloMesh.position.y = 30;
         thm.haloMesh.name = "halo";
         thm.haloMesh.scale.set(size, size, size);
-        thm.layout.add(thm.haloMesh); 
+        thm.layout.add(thm.haloMesh);
     }
     /**
      * [createHaloEffect 创建光环特效  位置位于中间 有光效的圆]
@@ -1838,6 +1589,6 @@ var Chassis_Layer = function(layout) {
         }
         mesh.parent && mesh.parent.remove(mesh);
         mesh = null;
-    } 
- 
+    }
+
 }

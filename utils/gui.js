@@ -14,21 +14,29 @@ var initGui = function(chassis) {
         cubeNumber: 20, //立方体数量
         cubeLook: 1, //1 朝中心点  
         cubeColor: "#ff0000", //模型颜色
-        pointColor: "#ff0000", //粒子颜色
+        pointColor: "#ff0000", //粒子颜色 
         pointNumber: 20, //粒子数量
-        pointSpeed: 1, //粒子数量
+        pointSize: 20, //粒子数量
+        pointSpeed: 1, //粒子速度
+        pointHeight: 30, //粒子高度
+        pointShow: true, //粒子效果是否显示
         aureColor: "#ff0000", //光环颜色
         aureeffectColor: "#ff0000", //光环特效颜色
         lineStyle: "dashed", //线条样式  实线 虚线
-        lineColor: "rgba(255,255,50,0.4)", //线条颜色
+        lineColor: "rgba(255,255,50,1)", //线条颜色
         lightEffect: "", //光效样式
         lightDotColor: "#ff0000",
         lightColor: "#ff0000", //光效颜色
         lightSize: 120, //光环大小
         lightPth: "", //光效方向
-        lightSpeed: "", //光效速度
-        chassisRotate: 0, //旋转方向 旋转方向 1 正 2反 0 停
-        chassisRotateSpeed: 1, //旋转速度
+        lightSpeed: 1, //光效速度
+        flySize: 10, //飞线粒子大小
+        flySpeed: 1, //飞线速度
+        flyDpi: 10, //精确度  越高 线条占用越短
+        flyLength: 100, //飞线长度
+        flyColor: "#ff0000", //飞线颜色
+        flyOrder: false, //飞线方向
+        chassisSetRotate: 0, // 停0为不运动  -1 为逆时针 0为顺时针 
         labelShow: true, //是否显示标签
         labelSize: 14, //标签大小
         labelColor: "#fff", //标签颜色
@@ -65,32 +73,18 @@ var initGui = function(chassis) {
     basicGui.addColor(_basic, "color").onChange(function(elem) {
         console.log(elem)
     })
-    basicGui.add(_df, "chassisRotate", ['正', '反', '停']).onChange(function(elem) {
-        if (elem == '正') {
-            C_Layer.setStyle({
-                chassisRotate: 1
-            })
-        } else if (elem == '反') {
-            C_Layer.setStyle({
-                chassisRotate: 2
-            })
-        } else {
-            C_Layer.setStyle({
-                chassisRotate: 0
-            })
-        }
-    })
-    basicGui.add(_df, "chassisRotateSpeed", 1, 20, 1).onChange(function(elem) {
+    basicGui.add(_df, "chassisSetRotate", -10, 10, 1).onChange(function(elem) {
+
         C_Layer.setStyle({
-            chassisRotateSpeed: elem
+            chassisSetRotate: elem
         })
     })
     var centerGui = gui.addFolder("中心");
-    const imgItems = ['d1','d2','d3','d4','d5','d6']
-    centerGui.add(_df, "insideImg",imgItems ).onChange(function(elem) {
-         C_Layer.setStyle({
-                insideImg: "./image/"+elem+".png"
-            })
+    const imgItems = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']
+    centerGui.add(_df, "insideImg", imgItems).onChange(function(elem) {
+        C_Layer.setStyle({
+            insideImg: "./image/" + elem + ".png"
+        })
     })
 
     centerGui.add(_df, "insideX", -60, 30, 1).onChange(function(elem) {
@@ -118,7 +112,7 @@ var initGui = function(chassis) {
             lightSize: elem
         })
     })
-    
+
     var lineGui = gui.addFolder("线");
     //线条样式  实线  虚线 光线  光带
     let lineStyle = [{
@@ -144,30 +138,62 @@ var initGui = function(chassis) {
         C_Layer.setStyle({
             lineColor: elem
         })
-    }) 
-     lineGui.addColor(_df, "lightDotColor").onChange(function(elem) {
+    })
+    lineGui.add(_df, 'flySize', 1, 50, 1).onChange(function(elem) {
         C_Layer.setStyle({
-            lightDotColor: elem
+            flySize: elem
         })
-    }) 
-    var PointGui = gui.addFolder("外");
-    //粒子
-    PointGui.addColor(_df, 'pointColor').onChange(function(elem) {
+    })
+    lineGui.add(_df, 'flyLength', 1, 200, 1).onChange(function(elem) {
+        C_Layer.setStyle({
+            flyLength: elem
+        })
+    })
+    lineGui.addColor(_df, 'flyColor').onChange(function(elem) {
+        C_Layer.setStyle({
+            flyColor: elem
+        })
+    })
+    lineGui.add(_df, 'flyOrder', [false, true]).onChange(function(elem) {
+        C_Layer.setStyle({
+            flyOrder: elem
+        })
+    })
+
+    lineGui.addColor(_df, 'pointColor').onChange(function(elem) {
         C_Layer.setStyle({
             pointColor: elem
         })
     })
-    //粒子
-    PointGui.add(_df, 'pointNumber', 1, 100, 1).onChange(function(elem) {
+    lineGui.add(_df, 'pointSize', 1, 100, 1).onChange(function(elem) {
         C_Layer.setStyle({
-            pointNumber: elem
+            pointSize: elem
         })
     })
-    PointGui.add(_df, 'pointSpeed', 1, 50, 1).onChange(function(elem) {
+    lineGui.add(_df, 'pointSpeed', 1, 100, 1).onChange(function(elem) {
         C_Layer.setStyle({
             pointSpeed: elem
         })
     })
+    //粒子
+    lineGui.add(_df, 'pointNumber', 1, 100, 1).onChange(function(elem) {
+        C_Layer.setStyle({
+            pointNumber: elem
+        })
+    })
+    lineGui.add(_df, 'pointHeight', 1, 250, 1).onChange(function(elem) {
+        C_Layer.setStyle({
+            pointHeight: elem
+        })
+    })
+    //  lineGui.addColor(_df, "lightDotColor").onChange(function(elem) {
+    //     C_Layer.setStyle({
+    //         lightDotColor: elem
+    //     })
+    // }) 
+    var PointGui = gui.addFolder("外");
+    //粒子
+
     var cubeGui = gui.addFolder("立方体");
     cubeGui.add(_df, 'cubeSize', 1, 100, 1).onChange(function(elem) {
         C_Layer.setStyle({
@@ -239,55 +265,70 @@ var initGui = function(chassis) {
             labelShow: elem
         })
     })
-    labelGui.add(_df, 'labelSize',1,50,1).onChange(function(elem) {
+    labelGui.add(_df, 'labelSize', 1, 50, 1).onChange(function(elem) {
         C_Layer.setStyle({
             labelSize: elem
         })
     })
-    labelGui.addColor(_df, 'labelColor' ).onChange(function(elem) {
+    labelGui.addColor(_df, 'labelColor').onChange(function(elem) {
         C_Layer.setStyle({
             labelColor: elem
         })
     })
     let arue = {
-        x:0,
-        y:0,
-        z:0
+        x: 0,
+        y: 0,
+        z: 0
     }
-    labelGui.add(arue, 'x',-Math.PI,Math.PI,0.1 ).onChange(function(elem) {
-        C_Layer.setArue(0,{ 
+    labelGui.add(arue, 'x', -Math.PI, Math.PI, 0.1).onChange(function(elem) {
+        C_Layer.setArue(0, {
             x: elem
         })
     })
-    labelGui.add(arue, 'y',-Math.PI,Math.PI,0.1 ).onChange(function(elem) {
-        C_Layer.setArue(0,{ 
+    labelGui.add(arue, 'y', -Math.PI, Math.PI, 0.1).onChange(function(elem) {
+        C_Layer.setArue(0, {
             y: elem
         })
     })
-    labelGui.add(arue, 'z',-Math.PI,Math.PI,0.1 ).onChange(function(elem) {
-        C_Layer.setArue(0,{ 
+    labelGui.add(arue, 'z', -Math.PI, Math.PI, 0.1).onChange(function(elem) {
+        C_Layer.setArue(0, {
             z: elem
         })
     })
     let arue1 = {
-        x:0,
-        y:0,
-        z:0
+        x: 0,
+        y: 0,
+        z: 0
     }
-    labelGui.add(arue1, 'x',-Math.PI,Math.PI,0.1 ).onChange(function(elem) {
-        C_Layer.setArue(1,{ 
+    labelGui.add(arue1, 'x', -Math.PI, Math.PI, 0.1).onChange(function(elem) {
+        C_Layer.setArue(1, {
             x: elem
         })
     })
-    labelGui.add(arue1, 'y',-Math.PI,Math.PI,0.1 ).onChange(function(elem) {
-        C_Layer.setArue(1,{ 
+    labelGui.add(arue1, 'y', -Math.PI, Math.PI, 0.1).onChange(function(elem) {
+        C_Layer.setArue(1, {
             y: elem
         })
     })
-    labelGui.add(arue1, 'z',-Math.PI,Math.PI,0.1 ).onChange(function(elem) {
-        C_Layer.setArue(1,{ 
+    labelGui.add(arue1, 'z', -Math.PI, Math.PI, 0.1).onChange(function(elem) {
+        C_Layer.setArue(1, {
             z: elem
         })
     })
-
+    let rubik = {
+        outerBorderWidth: 1, //外方块边框粗细
+        outerBorderColor: "#5599aa", //外方块边框粗细
+        outerColor: "rgba(255,255,255,0.8)", //外方块背景色
+        row: 4, //方块行数
+        col: 4, //方块列数
+        plateBorderColor: "#5588aa", //板块边框颜色
+        plateColor: "#5588aa", //板块颜色
+        higBorderColor: "#fff", //高亮板块边框颜色
+        higPlateColor: "#fff", //高亮板块颜色
+        arueColor: "#fff",
+        aureEffectColor: "#fff",
+        dotStyle: 1, //光点样式
+        dotColor: "rgba(255,255,255,0.5)"
+    }
+    var labelGui = gui.addFolder("魔方");
 }

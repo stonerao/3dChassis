@@ -3,21 +3,6 @@ var initCube = function(layou, _option) {
 	let df_Config = _Utils.cloneJSON(_Config.Chassis_Config.skinOne.rubik);
 	df_Config = _Utils.setParms(df_Config, _option);
 
-	/*
-	{
-        outerBorderWidth: 1, //外方块边框粗细
-        outerBorderColor: "#5599aa", //外方块边框粗细
-        outerColor: "#5599aa", //外方块背景色
-        row: 4, //方块行数
-        col: 4, //方块列数
-        plateBorderColor: "#5588aa", //板块边框颜色
-        plateColor: "#5588aa", //板块颜色
-        higBorderColor: "#fff", //高亮板块边框颜色
-        higPlateColor: "#fff", //高亮板块颜色
-        arueColor: "#fff",
-        aureEffectColor: "#fff",
-    }
-	 */
 
 	const rubikOpt = {
 		size: 65, //魔方size
@@ -93,8 +78,8 @@ var initCube = function(layou, _option) {
 
 		return group
 	}
-	this.setArue = function(index, vec3) { 
-		for(let key in vec3){
+	this.setArue = function(index, vec3) {
+		for (let key in vec3) {
 			thm.auras[index].rotation[key] = vec3[key]
 		}
 	}
@@ -105,13 +90,14 @@ var initCube = function(layou, _option) {
 	 * @param    {[type]}   radius [半径]
 	 */
 	let thm = this;
-	this.auras = []; 
-	this.animation = function(){
+	this.auras = [];
+	this.animation = function() {
 		//运动point
-		thm.auras.forEach(elem=>{
-			elem.rotation.z +=0.01;
+		thm.auras.forEach(elem => {
+			elem.rotation.z += 0.01;
 		})
 	}
+
 	function addArue(radius, group, option) {
 		let rotation = option.rotation;
 		/*let g = new THREE.Group();
@@ -129,7 +115,7 @@ var initCube = function(layou, _option) {
 
 		var material = new THREE.LineBasicMaterial({
 			color: new THREE.Color("rgb(50,123,232)"),
-			depthTest: false,
+			// depthTest: false,
 			transparent: true
 		});
 
@@ -188,7 +174,7 @@ var initCube = function(layou, _option) {
 		ellipse.add(pata)
 		// pata.position.z = -50;
 		return particles
-	} 
+	}
 	//添加平面圆
 	function addPlaneArue(points, radius) {
 		let canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
@@ -326,27 +312,27 @@ var initCube = function(layou, _option) {
 			border: 2,
 			borderColor: "#fff",
 			color: "#fff",
-			colorArrs:colorArrs,
-			fontColor:"#4bc9ee"
+			colorArrs: colorArrs,
+			fontColor: "#4bc9ee"
 		})
 		let textureHight = createInsidePlane({
 			size: 128,
 			border: 2,
 			borderColor: "#fff",
 			color: "#fff",
-			colorArrs:colorArrsHight,
-			fontColor:"#fff"
+			colorArrs: colorArrsHight,
+			fontColor: "#fff"
 		})
 		let materialArr = [];
 		let material = new THREE.MeshBasicMaterial({
-			side: THREE.FrontSide, 
-			color: new THREE.Color("#ffffff"), 
+			side: THREE.FrontSide,
+			color: new THREE.Color("#ffffff"),
 			opacity: 2,
 			map: texture
-		});	
+		});
 		let materialHight = new THREE.MeshBasicMaterial({
-			side: THREE.FrontSide, 
-			color: new THREE.Color("#ffffff"), 
+			side: THREE.FrontSide,
+			color: new THREE.Color("#ffffff"),
 			opacity: 2,
 			map: textureHight
 		});
@@ -355,7 +341,7 @@ var initCube = function(layou, _option) {
 		const totalWidth = size * row + gap * (row - 1);
 		for (let i = 0; i < row; i++) {
 			for (let j = 0; j < col; j++) {
-				let mesh = new THREE.Mesh(geometry,Math.random()<0.8? material:materialHight);
+				let mesh = new THREE.Mesh(geometry, Math.random() < 0.8 ? material : materialHight);
 				let x = i * size + i * gap - totalWidth / 2 + size / 2;
 				let y = j * size + j * gap - totalWidth / 2 + size / 2;
 				mesh.position.set(x, y, z);
@@ -379,7 +365,7 @@ var initCube = function(layou, _option) {
 	function createInsidePlane({
 		size = 54,
 		border = 2,
-		fontColor="#fff",
+		fontColor = "#fff",
 		borderColor = "#fff",
 		color = "#fff",
 		colorArrs = []
@@ -392,7 +378,7 @@ var initCube = function(layou, _option) {
 		ctx.beginPath();
 		let radius = 10;
 		let lw = 4;
-		
+
 		var grd = ctx.createRadialGradient(size / 2, size / 2, 18, size / 2, size / 2, size);
 		for (let i = 0; i < colorArrs.length; i++) {
 			grd.addColorStop(colorArrs[i].index, colorArrs[i].color);

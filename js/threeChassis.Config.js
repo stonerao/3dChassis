@@ -29,37 +29,47 @@ var Basic_Config = {
 };
 var Chassis_Config = {
     skinOne: {
-        // insideColor: "#ff0000", //内圈颜色 x
-        // outerColor: "#ff0000", //外圈颜色 x 
-        insideImg: "./image/d1.png", //内圈图片 v
+        insideColor: "", //内圈颜色
+        outerColor: "", //外圈颜色
+        insideImg: "./image/center.png", //内圈图片
         insideX: 0, //内圈图片坐标相对位置
         insideY: 30, //内圈图片坐标相对位置
         insideZ: 0, //内圈图片坐标相对位置
-        cube: "1", //立方体样式  选择皮肤1  2 皮肤2
+        cube: "1", //立方体样式
         cubeStyle: 1, //立方体皮肤 内置 1 立方体 2椎体  3圆 节点样式  
         cubeStyleAssets: "./image/texture-atlas.jpg",
         cubeSize: 25, //立方体大小
         cubeNumber: 20, //立方体数量
-        cubeLook: 2, //1 朝中心点  
-        cubeColor: "#555500", //1 朝中心点  
-        pointColor: "#ff0000", //粒子颜色
+        cubeLook: 1, //1 朝中心点  
+        cubeColor: "#ff0000", //模型颜色
+        pointColor: "#ff0000", //粒子颜色 
         pointNumber: 20, //粒子数量
-        pointSpeed: 30, //粒子速度
+        pointSize: 20, //粒子数量
+        pointSpeed: 1, //粒子速度
+        pointHeight: 30, //粒子高度
+        pointShow:true,//粒子效果是否显示
         aureColor: "#ff0000", //光环颜色
-        // aureeffectColor: "#55ccaa", //光环特效颜色
+        aureeffectColor: "#ff0000", //光环特效颜色
         lineStyle: "dashed", //线条样式  实线 虚线
-        lineColor: "rgba(255,255,50,0.4)", //线条颜色
-        // lightEffect: "#ffffff", //光环光效样式
-        // lightDotColor: "#ffffff",
-        lightColor: "#ffffff", //光效颜色
+        lineColor: "rgba(255,255,50,1)", //线条颜色
+        lightEffect: "", //光效样式
+        lightDotColor: "#ff0000",
+        lightColor: "#ff0000", //光效颜色
         lightSize: 120, //光环大小
-        lightPth: "", //光效方向 x
+        lightPth: "", //光效方向
         lightSpeed: "", //光效速度
-        chassisRotate: 1, //旋转方向 旋转方向 1 正 2反 0 停
-        chassisRotateSpeed: 1, //旋转速度
-        labelSize: 12, //标签大小
-        labelColor: "#ff0000", //标签颜色
-        labelStyle: "#ff0000", //标签样式
+        flyShow:true,
+        flySize: 10, //飞线粒子大小
+        flySpeed: 1, //飞线速度
+        flyDpi: 10, //精确度  越高 线条占用越短
+        flyLength: 100, //飞线长度
+        flyColor: "#ff0000", //飞线颜色
+        flyOrder: false, //飞线方向
+        chassisSetRotate: 0, // 停0为不运动  -1 为逆时针 0为顺时针 
+        labelShow: true, //是否显示标签
+        labelSize: 14, //标签大小
+        labelColor: "#fff", //标签颜色
+        labelStyle: "#fff", //标签样式
         labelBold: "#fff", //标签粗细
         labelBorderBold: "#fff", //边框粗细
         labelMax: 10, //标签最大显示数量 
@@ -67,7 +77,9 @@ var Chassis_Config = {
         labelOffsetY: 0, //标签相对Y位移
         labelOffsetZ: 0, //标签相对Z位移
         outerFloor: 175, //外圈半径
-        insideFloor: 50, //内圈半径 
+        outerFloorColor: "#5588aa", //外圈颜色
+        insideFloor: 50, //内圈半径
+        insideFloorColor: "#5588aa", //内圈颜色
         data: [],
         rubik: {
             outerBorderWidth: 1, //外方块边框粗细
@@ -81,9 +93,8 @@ var Chassis_Config = {
             higPlateColor: "#fff", //高亮板块颜色
             arueColor: "#fff",
             aureEffectColor: "#fff",
-            dotStyle:1,//光点样式
-            dotColor:"rgba(255,255,255,0.5)",
-
+            dotStyle: 1, //光点样式
+            dotColor: "rgba(255,255,255,0.5)" 
         }
     },
     skinTwo: {

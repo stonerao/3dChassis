@@ -5,14 +5,14 @@ var _Utils = {
 	 * @DateTime 2019-8-26 17:59:14
 	 * @return   {[Boolean]}   [true-支持、false-不支持]
 	 */
-	detector: function() {
+	detector: function () {
 		try {
 			return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl');
 		} catch (e) {
 			return false;
 		}
 	},
-	creatError: function(conts, errorText) {
+	creatError: function (conts, errorText) {
 		var error = $('<div class="data-error"></div>'),
 			error_text = errorText || '数据错误。。。';
 		if (undefined != conts) {
@@ -21,14 +21,14 @@ var _Utils = {
 			conts.html(error.html(error_text));
 		}
 	},
-	creatContainer: function(id) {
+	creatContainer: function (id) {
 		var containers = $('<div></div>');
 		containers.css("cssText", "height:100%;width:100%;overflow:hidden;position:relative;");
 		containers.attr('id', id);
 		return containers;
 	},
-	toFunction: function(callback) {
-		return function() {}
+	toFunction: function (callback) {
+		return function () { }
 	},
 	cloneJSON(j) {
 		try {
@@ -37,11 +37,11 @@ var _Utils = {
 			return {}
 		}
 	},
-	color: function(c) {
+	color: function (c) {
 		return new THREE.Color(c);
 	},
 	//- analysis color
-	getColorArr: function(str) {
+	getColorArr: function (str) {
 		if (Array.isArray(str)) return str; //error
 		var _arr = [];
 		str = str + '';
@@ -91,7 +91,7 @@ var _Utils = {
 		if (!len) {
 			len = parseInt(src.distanceTo(dst));
 		}
-		
+
 		len = len * dpi;
 		let items = [];
 		for (let i = 0; i < len; i++) {
@@ -99,5 +99,16 @@ var _Utils = {
 		}
 		items.push(dst)
 		return items
+	},
+	/**
+	 * [parseNumber 转换为数值  如果转换后为NaN  转换为0]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-23
+	 * @param    {any}	   src  [值] 
+	 * @return   {Number}       [数值]
+	 */
+	parseNumber(val) {
+		const n = parseFloat(val);
+		return isNaN(n) ? 0 : n;
 	}
 }
