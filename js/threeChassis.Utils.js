@@ -5,14 +5,14 @@ var _Utils = {
 	 * @DateTime 2019-8-26 17:59:14
 	 * @return   {[Boolean]}   [true-支持、false-不支持]
 	 */
-	detector: function() {
+	detector: function () {
 		try {
 			return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl');
 		} catch (e) {
 			return false;
 		}
 	},
-	creatError: function(conts, errorText) {
+	creatError: function (conts, errorText) {
 		var error = $('<div class="data-error"></div>'),
 			error_text = errorText || '数据错误。。。';
 		if (undefined != conts) {
@@ -21,14 +21,14 @@ var _Utils = {
 			conts.html(error.html(error_text));
 		}
 	},
-	creatContainer: function(id) {
+	creatContainer: function (id) {
 		var containers = $('<div></div>');
 		containers.css("cssText", "height:100%;width:100%;overflow:hidden;position:relative;");
 		containers.attr('id', id);
 		return containers;
 	},
-	toFunction: function(callback) {
-		return function() {}
+	toFunction: function (callback) {
+		return function () { }
 	},
 	cloneJSON(j) {
 		try {
@@ -37,11 +37,11 @@ var _Utils = {
 			return {}
 		}
 	},
-	color: function(c) {
+	color: function (c) {
 		return new THREE.Color(c);
 	},
 	//- analysis color
-	getColorArr: function(str) {
+	getColorArr: function (str) {
 		if (Array.isArray(str)) return str; //error
 		var _arr = [];
 		str = str + '';
@@ -68,4 +68,85 @@ var _Utils = {
 		}
 		return _arr;
 	},
+	setParms(_df, _cur) {
+		let obj = _df;
+		for (let key in obj) {
+			if (_cur.hasOwnProperty(key)) {
+				obj[key] = _cur[key]
+			}
+		}
+		return obj
+	},
+	/**
+	 * [getPoints 根据两点距离生成线段 线段的长度为两点之间的距离 dpi为当前比例  约高线段越多 越低线段越少]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-21
+	 * @param    {Object}   src [起点]
+	 * @param    {Object}   dst [终点]
+	 * @param    {Number}   dpi [分辨率]
+	 * @param    {Number}   len [长度]
+	 * @return   {[type]}       [所有线段]
+	 */
+	getPoints(src, dst, dpi = 1, len) {
+		if (!len) {
+			len = parseInt(src.distanceTo(dst));
+		}
+
+		len = len * dpi;
+		let items = [];
+		for (let i = 0; i < len; i++) {
+			items.push(src.clone().lerp(dst, i / len))
+		}
+		items.push(dst)
+		return items
+	},
+	/**
+	 * [parseNumber 转换为数值  如果转换后为NaN  转换为0]
+	 * @Author   RAOYN
+	 * @DateTime 2019-09-23
+	 * @param    {any}	   src  [值] 
+	 * @return   {Number}       [数值]
+	 */
+	parseNumber(val) {
+		const n = parseFloat(val);
+		return isNaN(n) ? 0 : n;
+	},
+	/**
+     * [drawCircle 绘制一个圆形 根据个数平均返回圆上的点 用于生成外圈的cube]
+     * @Author   RAOYN
+     * @DateTime 2019-09-06
+     * @param    {Array}   dot    [坐标中心点]
+     * @param    {Number}   r     [半径]
+     * @param    {Number}   Ratio [比例 椭圆]
+     * @param    {Number}   len   [生成个数]
+     * @return   {Array}          [返回已生成好的数组个数]
+     */
+	drawCircle(dot, r, Ratio, len) {
+        let pstart = [dot[0] + r, dot[1]]; //起点
+        let pre = pstart;
+        let total = 360
+        let arr = [];
+        for (let i = 0; i < 360; i += total / len) {
+            let rad = i * Math.PI / 180 + Math.PI / 1.9;
+            let cur = [r * Math.cos(rad) + dot[0], Ratio * r * Math.sin(rad) + dot[1]];
+            pre = cur; //保存当前点的坐标 
+            arr.push({
+                pre,
+                rad
+            })
+        }
+        return arr
+    },
+    /**
+     * [getCurveLine 绘制线条]
+     * @Author   RAOYN
+     * @DateTime 2019-10-17
+     * @param    {[type]}   src   [起点]
+     * @param    {[type]}   dst   [终点]
+     * @param    {[type]}   curve [弯曲程度 0 - ]
+     * @return   {[type]}         [顶点数组]
+     */
+    getCurveLine(src,dst,curve){
+
+    }
 }

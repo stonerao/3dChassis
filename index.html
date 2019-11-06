@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="../assets/three98.js"></script>
     <script src="../js/libs/dat.gui.min.js"></script>
+    <script src="../js/libs/stats.min.js"></script>
     <script src="../js/controls/OrbitControls.js"></script>
     <script src="../assets/jquery-3.4.1.min.js"></script>
     <script src="./libs/tween.min.js"></script>
@@ -16,8 +17,11 @@
     <script src="./js/threeChassis.Config.js"></script>
     <script src="./js/threeChassis.Layer.js"></script>
     <script src="./js/threeChassis.Collects.js"></script>
+    <script src="./js/threeChassis.Point.js"></script>
     <script src="./js/threeChassis.Assets.js"></script>
     <script src="./js/threeChassis.Cube.js"></script>
+    <script src="./js/threeChassis.ambient.js"></script>
+    <script src="./js/threeChassis.Line.js"></script>
     <script src="./utils/gui.js"></script>
     <title>预研</title>
 </head>
@@ -40,9 +44,17 @@
     <div class="" id="app"></div>
 </body>
 <script>
+    const datas = [...new Array(30)].map((elem, index) => {
+        return {
+            name: "测试name"+index,
+            id: index
+        }
+    })
     var ctx = $("#app");
     var chassis = new chassisInitialize(Chassis_Layer);
-    chassis.init(ctx, {})
+    chassis.init(ctx, {},{
+        data:datas
+    });
     chassis.render()
     window.addEventListener("resize", chassis.onContResize);
     //GUI
