@@ -4,6 +4,7 @@ var initGui = function(chassis) {
         insideColor: "", //内圈颜色
         outerColor: "", //外圈颜色
         insideImg: "./image/center.png", //内圈图片
+        insideSize: 20, //内圈图片
         insideX: 0, //内圈图片坐标相对位置
         insideY: 30, //内圈图片坐标相对位置
         insideZ: 0, //内圈图片坐标相对位置
@@ -100,6 +101,11 @@ var initGui = function(chassis) {
     centerGui.add(_df, "insideZ", -60, 60, 1).onChange(function(elem) {
         C_Layer.setStyle({
             insideZ: elem
+        })
+    })
+    centerGui.add(_df, "insideSize", 1, 260, 1).onChange(function(elem) {
+        C_Layer.setStyle({
+            insideSize: elem
         })
     })
     centerGui.addColor(_df, "aureColor").onChange(function(elem) {

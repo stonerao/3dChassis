@@ -4,7 +4,13 @@
  * @DateTime 2019-09-06
  * @param    {object}   layout [初始滑参数 父组件this]
  */
-var Chassis_Layer = function(layout) {
+/*
+    //需要引入的文件
+    _Config=>_Config.basic
+
+*/
+let basicConfig = _Config.Chassis_Config.basic;
+var Chassis_Layer = function (layout) {
     var thm = this;
     //组件所使用的的group组
     thm.layout = new THREE.Group();
@@ -20,7 +26,10 @@ var Chassis_Layer = function(layout) {
     //灯光组
     thm.lightGroup = new THREE.Group();
     thm.layout.add(thm.lightGroup);
-
+    thm.layersObject = new THREE.Group();
+    thm.layersArray = []; //图层
+    thm.layersOrder = []; //图层顺序
+    thm.layout.add(thm.layersObject);
     //配置 Config  
     let df_Config = _Utils.cloneJSON(_Config.Chassis_Config.skinOne);
     //全局配置
@@ -49,32 +58,30 @@ var Chassis_Layer = function(layout) {
     thm.Cube3D = null;
     thm.PointCube = null;
     circleArr = [];
-    thm.init = function(_Config = {}, _Option) {
+    thm.init = function (_Config = {}, _Option) {
         df_Config = _Utils.setParms(df_Config, _Config);
         df_Config = _Utils.setParms(df_Config, _Option);
         const outerFloor = df_Config.outerFloor || chassisRadius - 25;
         const insideFloor = df_Config.insideFloor || 50;
         //需要抽  
-        //判断当前需要哪一种皮肤
+        //判断当前需要哪一种皮肤 
         switch (~~df_Config.cube) {
             case 1:
-                //中间图 
-
-                /* createInsideImg(df_Config.insideImg, {
+                //中间图  
+                createInsideImg(df_Config.insideImg, {
                     x: df_Config.insideX,
                     y: df_Config.insideY,
                     z: df_Config.insideZ,
-                    width: 128,
-                    height: 128,
+                    width: df_Config.insideSize,
+                    height: df_Config.insideSize,
                     DPI: 1
-                }); */
+                });
                 break;
             case 2:
                 thm.threeCube = new initCube(thm.layout, df_Config.rubik);
-
-                /*thm.Cube3D = thm.threeCube.layou;
+                thm.Cube3D = thm.threeCube.layou;
                 thm.PointCube = thm.threeCube.point;
-                thm.Cube3D.name = "cube3d"*/
+                // thm.Cube3D.name = "cube3d"
                 thm.layout.add(thm.threeCube.init())
                 break;
         }
@@ -93,29 +100,50 @@ var Chassis_Layer = function(layout) {
         })
 
         //创建中间光效光环 
-        createHalo(df_Config.aureColor, df_Config.lightSize)
-        //创建 外围物体
-        const cubePosition = createCube({
-            color: "#fff",
-            style: df_Config.cubeStyle,
+        createHalo(df_Config.aureColor, df_Config.lightSize);
+        //生成外围的坐标角度
+        let circleArr = _Utils.drawCircle([0, 0], basicConfig.radius, 1, df_Config.cubeNumber);
+        //创建 外围物体 
+        let ambient = new initAmbient(thm.layersObject);
+        ambient.init({
             size: df_Config.cubeSize,
-            number: df_Config.cubeNumber,
             look: df_Config.cubeLook,
-            assets: df_Config.cubeStyleAssets,
-            radius: 200,
-            isLoadText: true,
-            data: df_Config.data
+            image: df_Config.cubeStyleAssets,
+            number: df_Config.cubeNumber,
+            color: "rgba(255,255,255,1)",
+            data: df_Config.data,
+            position: circleArr,
+            type: df_Config.cubeStyle,
+            radius: basicConfig.radius
         })
+        //创建连线
+        let Lines = new initLine(thm.layersObject);
+        Lines.init(circleArr, {
+            type: df_Config.lineStyle,
+            color: df_Config.lineColor,
+            centerRadius: 30,
+            curve: 0
+        })
+        /* 
+                const cubePosition = createCube({
+                    color: "#fff",
+                    style: df_Config.cubeStyle,
+                    size: df_Config.cubeSize,
+                    number: df_Config.cubeNumber,
+                    look: df_Config.cubeLook,
+                    assets: df_Config.cubeStyleAssets,
+                    radius: basicConfig.radius,
+                    isLoadText: true,
+                    data: df_Config.data
+                }) */
         // shaderOuterPonint(cubePosition, df_Config.pointColor, df_Config.cubeSize);
-        //创建连线线条
-        // createLine(df_Config.lineStyle, df_Config.lineColor);
+        //创建连线线条 
         // createGradientLine(df_Config.lineStyle, df_Config.lineColor);
         // 初始化参数
         let haloAssets = new THREE.TextureLoader().load('./image/50.png');
         _Line = new initLinePoint({
             layout: thm.layout
         })
-        console.log(df_Config)
         _Line.add({
             point: {},
             data: thm.lineArrPosition,
@@ -154,7 +182,7 @@ var Chassis_Layer = function(layout) {
      * @param    {Number}   delte [每次刷新的间隔时间]
      */
     let len = 0;
-    thm.animation = function(delta) {
+    thm.animation = function (delta) {
         //旋转
         if (thm.chassisRotateSpeed != 0) {
             thm.layout.rotation.y += thm.chassisRotateSpeed;
@@ -177,7 +205,7 @@ var Chassis_Layer = function(layout) {
              }
          })*/
         if (thm.fly) {
-            thm.fly.animation(delta, function() {
+            thm.fly.animation(delta, function () {
                 thm.point.addPoint(new THREE.Vector3(0, Math.random() * 30, 0));
             })
         }
@@ -185,7 +213,7 @@ var Chassis_Layer = function(layout) {
             _Line.animation(delta)
         }
         if (thm.point) {
-            thm.point.animation(delta, function() {
+            thm.point.animation(delta, function () {
 
             })
         }
@@ -201,7 +229,7 @@ var Chassis_Layer = function(layout) {
      * @Author   RAOYAN
      * @DateTime 2019-8-31 12:41:36
      */
-    thm.disposeValue = function() {
+    thm.disposeValue = function () {
         thm.layout = null;
         thm = null;
     }
@@ -212,7 +240,7 @@ var Chassis_Layer = function(layout) {
      * @param    {Object}   evnet  [event事件信息]
      * @param    {Object}   _mouse [mouse参数]
      */
-    thm.mouseUp = function(evnet = {}, _mouse = {}) {
+    thm.mouseUp = function (evnet = {}, _mouse = {}) {
         let mouse = new THREE.Vector2();
         mouse.x = _mouse.x;
         mouse.y = _mouse.y;
@@ -226,7 +254,7 @@ var Chassis_Layer = function(layout) {
      * @DateTime 2019-09-04
      * @param    {Object}   df_Raycaster [射线拾取] 
      */
-    thm.clickCube = function(df_Raycaster = {}) {
+    thm.clickCube = function (df_Raycaster = {}) {
         // console.log(layout.camera)
         /*var intersects = df_Raycaster.intersectObjects(thm.spotGroup.children, true);
         var intersection = (intersects.length) > 0 ? intersects[0] : {};*/
@@ -234,7 +262,7 @@ var Chassis_Layer = function(layout) {
 
         }*/
     }
-    thm.setArue = function(index, opt) {
+    thm.setArue = function (index, opt) {
         thm.threeCube.setArue(index, opt)
     }
     /**
@@ -243,7 +271,7 @@ var Chassis_Layer = function(layout) {
      * @DateTime 2019-09-05
      * @param    {Object}   option [所需要修改的样式，根据样式修改对应的]
      */
-    thm.setStyle = function(option) {
+    thm.setStyle = function (option) {
         //update config
         df_Config = _Utils.setParms(df_Config, option);
         ////////
@@ -265,7 +293,7 @@ var Chassis_Layer = function(layout) {
                 width: 512,
                 height: 512,
                 img: option.insideImg
-            }, function(texture) {
+            }, function (texture) {
                 // 创建完成 
                 let m = thm.insidePoint.material;
                 let spriteMaterial = new THREE.SpriteMaterial({
@@ -291,6 +319,11 @@ var Chassis_Layer = function(layout) {
         //中线物体Z的位置
         if (option.hasOwnProperty("insideZ")) {
             thm.insidePoint.position.z = option.insideZ;
+        }
+        //中线物体的大小
+        if (option.hasOwnProperty("insideSize")) {
+            let size = option.insideSize;
+            thm.insidePoint.scale.set(size, size, size);
         }
         //中线的颜色
         if (option.hasOwnProperty("aureColor")) {
@@ -380,7 +413,7 @@ var Chassis_Layer = function(layout) {
         if (option.hasOwnProperty("cubeSize")) {
             const size = option.cubeSize;
             thm.spriteGroup.position.y = size * 1.2;
-            thm.childCubeObject.children.forEach(function(elem) {
+            thm.childCubeObject.children.forEach(function (elem) {
                 if (elem.name == 'cone') {
                     elem.scale.set(size / 1.7, size, size / 1.7);
                 } else {
@@ -398,7 +431,7 @@ var Chassis_Layer = function(layout) {
             let position = getVecsPosition(circleArr);
             //更新线条 
             let vecs = [];
-            position.forEach(function(elem) {
+            position.forEach(function (elem) {
                 vecs.push({
                     src: center,
                     dst: elem
@@ -447,7 +480,7 @@ var Chassis_Layer = function(layout) {
                 }
             }
             let cubeArr = thm.childCubeObject.children.filter(elem => elem.name == styleName);
-            cubeArr.forEach(function(elem, index) {
+            cubeArr.forEach(function (elem, index) {
                 if (cubeArr.length >= cubeNumber) {
                     if (index >= cubeNumber) {
                         elem.visible = false;
@@ -469,13 +502,11 @@ var Chassis_Layer = function(layout) {
             })
             //修改粒子 
             setPointVecs(position)
-
-
             option.cubeLook = df_Config.cubeLook;
         }
         //立方体
         if (option.hasOwnProperty("cubeLook")) {
-            thm.childCubeObject.children.forEach(function(elem) {
+            thm.childCubeObject.children.forEach(function (elem) {
                 let vec3 = [0, 0, 0]
                 if (option.cubeLook == 1) {
                     vec3 = [0, df_Config.cubeSize / 2, 0]
@@ -507,7 +538,7 @@ var Chassis_Layer = function(layout) {
             }
 
             //选择到类型的显示 否则隐藏
-            thm.childCubeObject.children.forEach(function(elem) {
+            thm.childCubeObject.children.forEach(function (elem) {
                 if (elem.name == styleName) {
                     elem.visible = true;
                 } else {
@@ -515,11 +546,12 @@ var Chassis_Layer = function(layout) {
                 }
             })
         }
+        //修改盒子图片
         if (option.hasOwnProperty("cubeStyleAssets")) {
             let textur = new THREE.TextureLoader().load(option.cubeStyleAssets);
             const styleName = getCubeStyle(parseInt(df_Config.cubeStyle));
             const child = thm.childCubeObject.children.filter(elem => elem.name == styleName);
-            child.forEach(function(elem) {
+            child.forEach(function (elem) {
                 if (elem.type == "Mesh") {
                     elem.material.map = textur;
                     elem.material.needsUpdate = true;
@@ -529,15 +561,13 @@ var Chassis_Layer = function(layout) {
                     elem.children[0].material.needsUpdate = true;
                 }
             })
-            //dispose
-            console.log(textur)
+            //dispose 
             textur.dispose();
-            console.log(textur)
             textur = null;
         }
         if (option.hasOwnProperty("cubeColor")) {
             let colorArr = _Utils.getColorArr(option.cubeColor);
-            thm.childCubeObject.children.forEach(function(elem) {
+            thm.childCubeObject.children.forEach(function (elem) {
                 if (elem.type == "Mesh") {
                     elem.material.color = colorArr[0];
                     elem.material.opacity = colorArr[1];
@@ -582,19 +612,20 @@ var Chassis_Layer = function(layout) {
         }
         if (option.hasOwnProperty("labelSize")) {
             const size = option.labelSize;
-            thm.spriteGroup.children.forEach(function(elem) {
+            thm.spriteGroup.children.forEach(function (elem) {
                 const data = elem.userData
                 elem.scale.set(data.width * size, data.height * size);
             })
         }
         if (option.hasOwnProperty("labelColor")) {
             let colorArr = _Utils.getColorArr(option.labelColor);
-            thm.spriteGroup.children.forEach(function(elem) {
+            thm.spriteGroup.children.forEach(function (elem) {
                 elem.material.color = colorArr[0];
                 elem.material.opacity = colorArr[1];
             })
         }
     }
+
     /**
      * [createCube 创建外圈立方体]
      * @Author   RAOYN
@@ -943,13 +974,26 @@ var Chassis_Layer = function(layout) {
      * @return   {[type]}             [description]
      */
     function createOuterCone(info = [], cubeSize, map, text) {
-        let material = new THREE.MeshLambertMaterial({
+        var materials = [];
+
+        for (var i = 0; i < 3; i++) {
+            materials.push(new THREE.MeshBasicMaterial({
+                color: new THREE.Color('rgba(255,255,255,1)'),
+                transparent: true,
+                opacity: 1,
+                depthTests: true,
+                map: i == 0 ? new THREE.TextureLoader().load("./image/cc3.png") : new THREE.TextureLoader().load("./image/cc1.png"),
+                // overdraw: true
+            }))
+        }
+        /*  let material = new THREE.MeshLambertMaterial({
             color: new THREE.Color('rgba(53,76,220,1)'),
             transparent: true,
             opacity: 1,
             depthTests: true,
-        });
-
+            map: new THREE.TextureLoader().load("./image/texture-atlas.jpg")
+        });   */
+        let material = new THREE.MeshFaceMaterial(materials);
         let cone = [];
         for (let i = 0; i < info.length; i++) {
             //生成cube
@@ -957,15 +1001,16 @@ var Chassis_Layer = function(layout) {
             g.name = "cone";
             thm.childCubeObject.add(g);
             let elem = info[i];
-            let geometry = new THREE.ConeBufferGeometry(1, 1, 4);
+            let geometry = new THREE.ConeGeometry(1, 1, 4);
             let cubeMesh = new THREE.Mesh(geometry, material);
+            console.log(cubeMesh)
             cubeMesh.rotation.z += Math.PI;
             cubeMesh.name = "point";
             g.add(cubeMesh)
             cone.push(cubeMesh)
             const vec3 = new THREE.Vector3(elem.pre[0], 0, elem.pre[1]);
             g.position.set(vec3.x, vec3.y + cubeSize / 2, vec3.z);
-            g.lookAt(new THREE.Vector3(0, 0, 0));
+            // g.lookAt(new THREE.Vector3(0, 0, 0));
             g.scale.set(cubeSize / 1.7, cubeSize, cubeSize / 1.7);
         }
 
@@ -1094,7 +1139,7 @@ var Chassis_Layer = function(layout) {
             width: 512,
             height: 512,
             img: img
-        }, function(texture) {
+        }, function (texture) {
             // 创建完成 
             let spriteMaterial = new THREE.SpriteMaterial({
                 map: texture,
@@ -1114,7 +1159,7 @@ var Chassis_Layer = function(layout) {
     function setLineGeometry(vecs) {
         //更新线条的顶点
         let position = []
-        vecs.forEach(function(elem) {
+        vecs.forEach(function (elem) {
             position.push(elem.src.x, elem.src.y, elem.src.z);
             position.push(elem.dst.x, elem.dst.y, elem.dst.z);
         })
@@ -1154,7 +1199,7 @@ var Chassis_Layer = function(layout) {
             [0, 80, 230],
             [0, 320, 0]
         ]
-        sootItems.forEach(function(elem) {
+        sootItems.forEach(function (elem) {
             var spotLight = new THREE.SpotLight({
                 color: 0xa5ddfa,
                 intensity: 2,
@@ -1321,7 +1366,7 @@ var Chassis_Layer = function(layout) {
         let _Image = new Image();
         _Image.src = img;
         //等待图片加载完成
-        _Image.onload = function() {
+        _Image.onload = function () {
             ctx.drawImage(_Image, 0, 0, width, height);
             let _texture = new THREE.Texture(canvas);
             _texture.needsUpdate = true;
@@ -1522,7 +1567,7 @@ var Chassis_Layer = function(layout) {
      * @return   {Array}              [改变后成为2的n次方的数值]
      */
     function getVecsPosition(vecs = []) {
-        return vecs.map(function(elem) {
+        return vecs.map(function (elem) {
             return new THREE.Vector3(elem.pre[0], 0, elem.pre[1]);
         });
     }
@@ -1572,7 +1617,7 @@ var Chassis_Layer = function(layout) {
      * @DateTime 2019-08-24 
      * @param    {[object]}   mesh   [元素]
      */
-    thm.disposeMesh = function(mesh) {
+    thm.disposeMesh = function (mesh) {
         var meshLen = mesh.children.length;
         if (meshLen.length > 0) {
             //递归删除所有children

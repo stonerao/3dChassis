@@ -28,14 +28,18 @@ var Basic_Config = {
     }
 };
 var Chassis_Config = {
+    basic:{
+        radius:200
+    },
     skinOne: {
         insideColor: "", //内圈颜色
         outerColor: "", //外圈颜色
-        insideImg: "./image/center.png", //内圈图片
+        insideImg: "./image/d3.png", //内圈图片
+        insideSize: 20, //内圈图片
         insideX: 0, //内圈图片坐标相对位置
         insideY: 30, //内圈图片坐标相对位置
         insideZ: 0, //内圈图片坐标相对位置
-        cube: "1", //立方体样式
+        cube: 1, //立方体样式
         cubeStyle: 1, //立方体皮肤 内置 1 立方体 2椎体  3圆 节点样式  
         cubeStyleAssets: "./image/texture-atlas.jpg",
         cubeSize: 25, //立方体大小
@@ -47,7 +51,7 @@ var Chassis_Config = {
         pointSize: 20, //粒子数量
         pointSpeed: 1, //粒子速度
         pointHeight: 30, //粒子高度
-        pointShow:true,//粒子效果是否显示
+        pointShow: true, //粒子效果是否显示
         aureColor: "#ff0000", //光环颜色
         aureeffectColor: "#ff0000", //光环特效颜色
         lineStyle: "dashed", //线条样式  实线 虚线
@@ -58,7 +62,7 @@ var Chassis_Config = {
         lightSize: 120, //光环大小
         lightPth: "", //光效方向
         lightSpeed: "", //光效速度
-        flyShow:true,
+        flyShow: true,
         flySize: 10, //飞线粒子大小
         flySpeed: 1, //飞线速度
         flyDpi: 10, //精确度  越高 线条占用越短
@@ -94,11 +98,18 @@ var Chassis_Config = {
             arueColor: "#fff",
             aureEffectColor: "#fff",
             dotStyle: 1, //光点样式
-            dotColor: "rgba(255,255,255,0.5)" 
+            dotColor: "rgba(255,255,255,0.5)"
         }
     },
     skinTwo: {
 
+    },
+    ambient: {
+        size: 20,
+        look: 1, 
+        image: "",
+        number: 20,
+        color:"rgba(255,255,255,1)"
     }
 };
 var _Config = {};

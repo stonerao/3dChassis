@@ -110,5 +110,43 @@ var _Utils = {
 	parseNumber(val) {
 		const n = parseFloat(val);
 		return isNaN(n) ? 0 : n;
-	}
+	},
+	/**
+     * [drawCircle 绘制一个圆形 根据个数平均返回圆上的点 用于生成外圈的cube]
+     * @Author   RAOYN
+     * @DateTime 2019-09-06
+     * @param    {Array}   dot    [坐标中心点]
+     * @param    {Number}   r     [半径]
+     * @param    {Number}   Ratio [比例 椭圆]
+     * @param    {Number}   len   [生成个数]
+     * @return   {Array}          [返回已生成好的数组个数]
+     */
+	drawCircle(dot, r, Ratio, len) {
+        let pstart = [dot[0] + r, dot[1]]; //起点
+        let pre = pstart;
+        let total = 360
+        let arr = [];
+        for (let i = 0; i < 360; i += total / len) {
+            let rad = i * Math.PI / 180 + Math.PI / 1.9;
+            let cur = [r * Math.cos(rad) + dot[0], Ratio * r * Math.sin(rad) + dot[1]];
+            pre = cur; //保存当前点的坐标 
+            arr.push({
+                pre,
+                rad
+            })
+        }
+        return arr
+    },
+    /**
+     * [getCurveLine 绘制线条]
+     * @Author   RAOYN
+     * @DateTime 2019-10-17
+     * @param    {[type]}   src   [起点]
+     * @param    {[type]}   dst   [终点]
+     * @param    {[type]}   curve [弯曲程度 0 - ]
+     * @return   {[type]}         [顶点数组]
+     */
+    getCurveLine(src,dst,curve){
+
+    }
 }

@@ -85,8 +85,7 @@ var flying = function() {
     let goup = new THREE.Group();
     let len;
     let speed;
-    this.initFly = function(lines, config) {
-        console.log(config)
+    this.initFly = function(lines, config) { 
         len = config.length || 120;
         let szie = config.szie || 5;
         let dpi = config.dpi || 1;
