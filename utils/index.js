@@ -1,7 +1,7 @@
 var init = function (option) {
 	var camera, controls, scene, renderer;
-	var clock = new THREE.Clock();
-	var thm = this;
+	const clock = new THREE.Clock();
+	const thm = this;
 	let config = {
 		controls: {
 			enableZoom: true,
